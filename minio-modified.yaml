@@ -1,0 +1,14 @@
+data:
+  artifactRepository: |
+    s3:
+      bucket: my-bucket
+      #keyFormat: prefix/in/bucket     #optional
+      endpoint: 192.168.39.189:31725        #AWS => s3.amazonaws.com; GCS => storage.googleapis.com
+      insecure: true                  #omit for S3/GCS. Needed when minio runs without TLS
+      accessKeySecret:                #omit if accessing via AWS IAM
+        name: my-minio-cred
+        key: accessKey
+      secretKeySecret:                #omit if accessing via AWS IAM
+        name: my-minio-cred
+        key: secretKey
+      useSDKCreds: false               #tells argo to use AWS SDK's default provider chain, enable for things like IRSA support
