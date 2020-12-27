@@ -6,7 +6,7 @@ git branch -M main
 git remote add origin https://github.com/geoinca/miniok.git
 git push -u origin main
 
-minikube
+# minikube
 
 minikube start   --container-runtime=docker  --v=10 --alsologtostderr --cpus 2 --memory 8192
 
