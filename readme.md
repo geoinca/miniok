@@ -44,6 +44,7 @@ kubectl apply -n argo -f https://raw.githubusercontent.com/argoproj/argo/stable/
 # Create role bindings to give argo admin
 kubectl create rolebinding default-admin --clusterrole=admin --serviceaccount=argo:default --namespace=argo
 
+kubectl -n argo port-forward deployment/argo-server 2746:2746
 
 
 kubectl apply -n argo -f https://raw.githubusercontent.com/argoproj/argo/stable/manifests/install.yaml &&
@@ -73,6 +74,9 @@ type: Opaque
 data:
   accessKey: REVNT01JTklPQVJHT0VYQU1QTEU= # DEMOMINIOARGOEXAMPLE
   secretKey: REVNTy9NSU5JTy9BUkdPL0tFWVNFQ1RSRUNUL0VYQU1QTEU= #DEMO/MINIO/ARGO/KEYSECTRECT/EXAMPLE
+
+# Forward argo-artifacts (minio) port 9000 to our 9000 in namespace argo
+kubectl port-forward service/argo-artifacts -n argo 9000:9000
 
 mc config host add minio http://minio-service.minio:9000 REVNT01JTklPQVJHT0VYQU1QTEU REVNTy9NSU5JTy9BUkdPL0tFWVNFQ1RSRUNUL0VYQU1QTEU
 
@@ -140,3 +144,9 @@ mc config host add miniox http://argo-artifacts.argo.svc.cluster.local:9000 AKIA
 argo submit -n default --watch https://raw.githubusercontent.com/argoproj/argo/master/examples/artifact-passing.yaml
 argo submit -n argo --watch https://raw.githubusercontent.com/argoproj/argo/master/examples/hello-world.yaml
 argo submit         --watch https://raw.githubusercontent.com/argoproj/argo/master/examples/hello-world.yaml
+
+
+# run Hello 
+argo submit         -n argo k3/hello-world01.yaml -p message="goodbye world"
+argo submit --watch -n argo k3/hello-world01.yaml -p message="goodbye world"
+argo submit         -n argo k3/hello-world01.yaml --parameter-file params.yaml
