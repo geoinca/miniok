@@ -1,0 +1,125 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: click-csv-to-pg-
+spec:
+  entrypoint: main
+  imagePullSecrets:
+    - name: quay-pull-secret
+  templates:
+    - name: main
+      steps:
+        - - name: generate-tablename
+            template: generate-tablename
+        - - name: run-analysis
+            template: run-analysis
+        - - name: create-table
+            template: create-table
+            arguments:
+              parameters:
+              - name: clickstable
+                value: "{{steps.generate-tablename.outputs.result}}"
+        - - name: import-csv
+            template: import-csv
+            arguments:
+              artifacts:
+                - name: clicks-csv
+                  from: "{{steps.run-analysis.outputs.artifacts.clicks-csv}}"
+              parameters:
+                - name: clickstable
+                  value: "{{steps.generate-tablename.outputs.result}}"
+        - - name: index-and-switch-view
+            template: index-and-switch-view
+            arguments:
+              parameters:
+                - name: clickstable
+                  value: "{{steps.generate-tablename.outputs.result}}"
+
+    - name: generate-tablename
+      script:
+        image: node:10
+        command: [node]
+        source: |
+          console.log('clicks_' +
+              new Date('{{workflow.creationTimestamp}}')
+                  .toISOString().replace(/-|T|:|[.]/g, '')
+                  .toLowerCase());
+
+    - name: run-analysis
+      container:
+        image: peachjar/blinded-by-data-science
+        args: ['/tmp/clicks.csv']
+        envFrom:
+          - secretRef:
+              name: secrets-for-click-analysis
+      outputs:
+        artifacts:
+          - name: clicks-csv
+            path: /tmp/clicks.csv
+
+    - name: create-table
+      inputs:
+        parameters:
+        - name: clickstable
+      container:
+        image: postgres:10
+        command: [sh, -c]
+        args:
+          - |
+            PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -U $DB_USER \
+              -d metrics -p $DB_PORT <<EOSQL
+                create table if not exists {{inputs.parameters.clickstable}} (
+                  campaign_id uuid,
+                  num_clicks integer not null,
+                  start_time timestamp with time zone,
+                  end_time timestamp with time zone,
+                );
+            EOSQL
+        envFrom:
+          - secretRef:
+              name: secrets-for-click-analysis
+
+    - name: import-csv
+      inputs:
+        artifacts:
+          - name: clicks-csv
+            path: /tmp/clicks.csv
+        parameters:
+        - name: clickstable
+      container:
+        image: quay.io/peachjar/timescaledb-parallel-copy:build-29
+        command: [sh, -c]
+        args:
+          - |
+            tail -n +2 /tmp/clicks > /tmp/csv_no_head.csv
+            CONNECTION="host=$DB_HOST user=$DB_USER sslmode=require"
+            CONNECTION="${CONNECTION} password=$DB_PASSWORD port=$DB_PORT"
+            COLUMNS="campaign_id,num_clicks,start_time,end_time"
+            timescaledb-parallel-copy --db-name metrics \
+                --table {{inputs.parameters.clickstable}} \
+                --connection $CONNECTION --reporting-period 2s --columns $COLUMNS \
+                --copy-options "CSV NULL ''" --workers 4 --file /tmp/csv_no_head.csv
+        envFrom:
+        - secretRef:
+            name: secrets-for-click-analysis
+
+    - name: index-and-switch-view
+      inputs:
+        parameters:
+        - name: clickstable
+      container:
+        image: postgres:10
+        command: [sh, -c]
+        args:
+          - |
+            PGPASSWORD=$DB_PASSWORD psql -h $DB_HOST -U $DB_USER \
+              -d metrics -p $DB_PORT <<EOSQL
+                create index if not exists ${TABLE}_campaign_id
+                     on {{inputs.parameters.clickstable}} (campaign_id);
+                DROP VIEW IF EXISTS clicks;
+                CREATE VIEW clicks AS
+                    SELECT * FROM {{inputs.parameters.clickstable}};
+            EOSQL
+        envFrom:
+          - secretRef:
+              name: secrets-for-click-analysis

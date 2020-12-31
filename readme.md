@@ -80,6 +80,7 @@ kubectl port-forward service/argo-artifacts -n argo 9000:9000
 
 mc config host add minio http://minio-service.minio:9000 REVNT01JTklPQVJHT0VYQU1QTEU REVNTy9NSU5JTy9BUkdPL0tFWVNFQ1RSRUNUL0VYQU1QTEU
 
+mc config host add argo-artifacts http://argo-artifacts.argo:900 tfq0M5o1QtNOJcP1nizr HbO5COQOXR6z3P0jgTVCBzWxkXFPXKsMqoItRzL6
 
 sed "s/{{MINIO}}/${minikubeUrl}/g" ./minio-default.yaml > ./minio-modified.yaml
 ```
@@ -142,11 +143,21 @@ $ rm -f ./argo/minio-modified.yaml
 mc config host add miniox http://argo-artifacts.argo.svc.cluster.local:9000 AKIAIOSFODNN7EXAMPLE wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
 
 argo submit -n default --watch https://raw.githubusercontent.com/argoproj/argo/master/examples/artifact-passing.yaml
-argo submit -n argo --watch https://raw.githubusercontent.com/argoproj/argo/master/examples/hello-world.yaml
-argo submit         --watch https://raw.githubusercontent.com/argoproj/argo/master/examples/hello-world.yaml
+argo submit -n argo    --watch https://raw.githubusercontent.com/argoproj/argo/master/examples/hello-world.yaml
+argo submit            --watch https://raw.githubusercontent.com/argoproj/argo/master/examples/hello-world.yaml
+
+argo submit --watch -n argo  https://raw.githubusercontent.com/argoproj/argo/master/examples/artifact-passing.yaml
+
+
+argo submit --watch -n argo  k3/hello-world09.yaml
 
 
 # run Hello 
 argo submit         -n argo k3/hello-world01.yaml -p message="goodbye world"
 argo submit --watch -n argo k3/hello-world01.yaml -p message="goodbye world"
 argo submit         -n argo k3/hello-world01.yaml --parameter-file params.yaml
+
+argo submit --watch misc/workflow-argo.yml -p image=geoincaks/asv-environment:latest -p git_ref=master -p dataset=iris -n argo
+
+{"auths":{"index.docker.io":{"username":"geoincaks","password":" ",          "auth":"Z2VvaW5jYWtzOkQwY2czMDMxMjQ="}}}
+{"auths":{"index.docker.io":{"username":"geoincaks","password":" ","auth":"Z2VvaW5jYWtzOiZEMGNnMzAzMTI0Jg=="}}}

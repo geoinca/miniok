@@ -1,1 +1,2 @@
 message: argo submit -n argo --watch hello-world01.yaml --entrypoint whalesay-caps --parameter-file params.yaml
+msg: QWEVDACEW of msg

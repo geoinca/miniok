@@ -18,8 +18,10 @@ RUN apt install -y build-essential libssl-dev zlib1g-dev libncurses5-dev \
                    libncursesw5-dev libreadline-dev libsqlite3-dev libgdbm-dev \
                    libdb5.3-dev libbz2-dev libexpat1-dev liblzma-dev tk-dev libffi-dev \
                    iputils-ping wget
+RUN apt install -y software-properties-common                   
 RUN apt install -y net-tools                   
 RUN apt install -y python3.6
 
 RUN wget https://dl.min.io/client/mc/release/linux-amd64/mc
 RUN chmod +x mc
+RUN cp mc /usr/local/bin 

@@ -12,6 +12,23 @@ spec:
   - name: my-secret-vol
     secret:
       secretName: my-secret     # name of an existing k8s secret
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi                  # Gi => 1024 * 1024 * 1024
+
+  # volumeClaimTemplates:                 # define volume, same syntax as k8s Pod spec
+  # - metadata:
+  #     name: my-secret-vol                     # name of volume claim
+  #   secret:
+  #     secretName: my-secret     # name of an existing k8s secret
+  #   spec:
+  #     accessModes: [ "ReadWriteOnce" ]
+  #     resources:
+  #       requests:
+  #         storage: 1Gi                  # Gi => 1024 * 1024 * 1024
+
   templates:
   - name: whalesay
     container:
