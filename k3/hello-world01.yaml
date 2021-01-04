@@ -19,6 +19,8 @@ spec:
       - name: message       # parameter declaration
     container:
       # run cowsay with that message input parameter as args
-      image: docker/whalesay
+      # image: docker/whalesay 
+      image: geoincaks/whalesay:0.1.1
+      # command: [cowsay]
       command: [cowsay]
       args: ["{{inputs.parameters.message}}"]

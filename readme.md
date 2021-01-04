@@ -80,7 +80,7 @@ kubectl port-forward service/argo-artifacts -n argo 9000:9000
 
 mc config host add minio http://minio-service.minio:9000 REVNT01JTklPQVJHT0VYQU1QTEU REVNTy9NSU5JTy9BUkdPL0tFWVNFQ1RSRUNUL0VYQU1QTEU
 
-mc config host add argo-artifacts http://argo-artifacts.argo:900 tfq0M5o1QtNOJcP1nizr HbO5COQOXR6z3P0jgTVCBzWxkXFPXKsMqoItRzL6
+mc config host add argo-artifacts http://argo-artifacts.argo:9000 tfq0M5o1QtNOJcP1nizr HbO5COQOXR6z3P0jgTVCBzWxkXFPXKsMqoItRzL6
 
 sed "s/{{MINIO}}/${minikubeUrl}/g" ./minio-default.yaml > ./minio-modified.yaml
 ```
@@ -161,3 +161,14 @@ argo submit --watch misc/workflow-argo.yml -p image=geoincaks/asv-environment:la
 
 {"auths":{"index.docker.io":{"username":"geoincaks","password":" ",          "auth":"Z2VvaW5jYWtzOkQwY2czMDMxMjQ="}}}
 {"auths":{"index.docker.io":{"username":"geoincaks","password":" ","auth":"Z2VvaW5jYWtzOiZEMGNnMzAzMTI0Jg=="}}}
+
+
+
+
+
+
+
+#docker ubuntutest
+ docker build -t geoincaks/ubuntutest:0.1.1 .
+ docker push geoincaks/ubuntutest:0.1.1
+ docker run -it  docker/whalesay

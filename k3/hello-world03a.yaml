@@ -47,6 +47,7 @@ spec:
       parameters:
       - name: message
     container:
-      image: docker/whalesay
+      # image: docker/whalesay 
+      image: geoincaks/whalesay:0.1.1
       command: [cowsay]
       args: ["{{inputs.parameters.message}}"]
