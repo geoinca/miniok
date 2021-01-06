@@ -27,6 +27,8 @@ RUN chmod +x mc
 RUN cp mc /usr/local/bin 
 RUN ln -s /usr/games/cowsay /usr/local/bin/cowsay
 WORKDIR /app
+RUN echo "alias tuxsay=\"cowsay -f tux \"" >> ~/.bashrc
+#RUN source  ~/.bashrc
 #RUN pip install --upgrade pip
 RUN pip3 install text_to_image
 

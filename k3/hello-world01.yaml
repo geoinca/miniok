@@ -22,5 +22,5 @@ spec:
       # image: docker/whalesay 
       image: geoincaks/whalesay:0.1.1
       # command: [cowsay]
-      command: [cowsay]
-      args: ["{{inputs.parameters.message}}"]
+      command: [sh, -c]
+      args: ["sleep 30; cowsay -f tux {{inputs.parameters.message}}"]

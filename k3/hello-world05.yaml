@@ -7,16 +7,18 @@ spec:
   templates:
   - name: a
     container:
-      image:  docker/whalesay:latest
-      command: [cowsay]
-      args: ["hello world"]
+      image:  geoincaks/whalesay:0.1.1
+      #command: [cowsay]
+      #args: ["hello world x "]
+      command: [sh, -c]
+      args: ["cowsay -f tux statis A "]
   - name: b
     retryStrategy:
       limit: 2
     container:
-      image: alpine:latest
+      image: geoincaks/whalesay:0.1.1
       command: [sh, -c]
-      args: ["sleep 30; echo haha"]
+      args: ["sleep 30; cowsay -f turkey haha"]
   - name: c
     retryStrategy:
       limit: 3
@@ -26,9 +28,16 @@ spec:
       args: ["echo intentional failure; exit 2"]
   - name: d
     container:
-      image: docker/whalesay:latest
-      command: [cowsay]
-      args: ["hello world"]
+      image: geoincaks/whalesay:0.1.1
+      #command: [cowsay]
+      command: [sh, -c]
+      args: ["cowsay -f ren statis D"]
+  - name: e
+    container:
+      image: geoincaks/whalesay:0.1.1
+      #command: [cowsay]
+      command: [sh, -c]
+      args: ["cowsay -f ghostbusters statis E"]      
   - name: statis
     dag:
       failFast: false
@@ -46,4 +55,4 @@ spec:
         template: d
       - name: E
         dependencies: [D]
-        template: d
+        template: e
