@@ -21,7 +21,7 @@ spec:
       args: ["sleep 30; cowsay -f turkey haha"]
   - name: c
     retryStrategy:
-      limit: 3
+      limit: 2
     container:
       image: alpine:latest
       command: [sh, -c]
@@ -49,10 +49,10 @@ spec:
         template: b
       - name: C
         dependencies: [A]
-        template: c
+        template: b
       - name: D
         dependencies: [B]
         template: d
       - name: E
-        dependencies: [D]
+        dependencies: [D,C]
         template: e
