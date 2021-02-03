@@ -46,12 +46,18 @@ kubectl create rolebinding default-admin --clusterrole=admin --serviceaccount=ar
 
 kubectl -n argo port-forward deployment/argo-server 2746:2746
 
+$ brew install helm # mac, helm 3.x
+$ helm repo add minio https://helm.min.io/ # official minio Helm charts
+$ helm repo update
+$ helm install argo-artifacts minio/minio --set service.type=LoadBalancer --set fullnameOverride=argo-artifacts
+
+
 
 kubectl apply -n argo -f https://raw.githubusercontent.com/argoproj/argo/stable/manifests/install.yaml &&
 kubectl create rolebinding default-admin --clusterrole=admin --serviceaccount=default:default
 kubectl create ns minio &&
-helm install --namespace=minio argo-artifacts stable/minio --set service.type=LoadBalancer --set fullnameOverride=minio-service
-
+helm install                  argo-artifacts stable/minio --set service.type=LoadBalancer --set fullnameOverride=minio-service
+helm install --namespace=argo argo-artifacts stable/minio --set service.type=LoadBalancer --set fullnameOverride=argo-artifacts
 # otra opción
 kubectl create secret generic argo-artifacts --from-literal=accesskey="AKIAIOSFODNN7EXAMPLE" --from-literal=secretkey="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY" 
 
@@ -172,3 +178,19 @@ argo submit --watch misc/workflow-argo.yml -p image=geoincaks/asv-environment:la
  docker build -t geoincaks/ubuntutest:0.1.1 .
  docker push geoincaks/ubuntutest:0.1.1
  docker run -it  docker/whalesay
+
+
+
+ <!-- Actual text -->
+
+You can find me on [![Twitter][1.2]][1], or on [![LinkedIn][3.2]][3].
+
+<!-- Icons -->
+
+[1.2]: http://i.imgur.com/wWzX9uB.png (twitter icon without padding)
+[2.2]: https://raw.githubusercontent.com/MartinHeinz/MartinHeinz/master/linkedin-3-16.png (LinkedIn icon without padding)
+
+<!-- Links to your social media accounts -->
+
+[1]: https://twitter.com/geo.inca_
+[2]: https://www.linkedin.com/in/geovanny.inca/
