@@ -49,7 +49,7 @@ kubectl -n argo port-forward deployment/argo-server 2746:2746
 $ brew install helm # mac, helm 3.x
 $ helm repo add minio https://helm.min.io/ # official minio Helm charts
 $ helm repo update
-$ helm install argo-artifacts minio/minio --set service.type=LoadBalancer --set fullnameOverride=argo-artifacts
+$ helm install --namespace=argo argo-artifacts minio/minio --set service.type=LoadBalancer --set fullnameOverride=argo-artifacts
 
 
 
@@ -64,7 +64,44 @@ kubectl create secret generic argo-artifacts --from-literal=accesskey="AKIAIOSFO
 kubectl apply -n minio -f minio-argo-artifact.install.yml
 
 kubectl -n argo patch configmap/workflow-controller-configmap --patch "$(cat ./minio-modified-minio.yaml)"
- 
+
+$ kubectl edit configmap workflow-controller-configmap -n argo      # assumes argo was installed in the argo namespace
+...
+data:
+  artifactRepository: |
+    s3:
+      bucket: my-bucket
+      keyFormat: prefix/in/bucket     #optional
+      endpoint: my-minio-endpoint.default:9000        #AWS => s3.amazonaws.com; GCS => storage.googleapis.com
+      insecure: true                  #omit for S3/GCS. Needed when minio runs without TLS
+      accessKeySecret:                #omit if accessing via AWS IAM
+        name: my-minio-cred
+        key: accessKey
+      secretKeySecret:                #omit if accessing via AWS IAM
+        name: my-minio-cred
+        key: secretKey
+      useSDKCreds: true               #tells argo to use AWS SDK's default provider chain, enable for things like IRSA support
+
+data:
+  config: |
+    artifactRepository:
+      s3:
+        bucket: artifacts
+        endpoint: argo-artifacts:9000
+        insecure: true
+        # accessKeySecret and secretKeySecret are secret selectors.
+        # It references the k8s secret named 'argo-artifacts'
+        # which was created during the minio helm install. The keys,
+        # 'accesskey' and 'secretkey', inside that secret are where the
+        # actual minio credentials are stored.
+        accessKeySecret:
+          name: argo-artifacts
+          key: accesskey
+        secretKeySecret:
+          name: argo-artifacts
+          key: secretkey
+
+
 # Now run the below script
 # Add the official Helm stable charts
 $ helm repo add stable https://kubernetes-charts.storage.googleapis.com/
