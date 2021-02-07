@@ -216,8 +216,11 @@ argo submit --watch misc/workflow-argo.yml -p image=geoincaks/asv-environment:la
  docker push geoincaks/ubuntutest:0.1.1
  docker run -it  docker/whalesay
 
-
-
+#docker pythonimg
+ docker build -t geoincaks/pythonimg:0.1.1 .
+ docker push geoincaks/pythonimg:0.1.1
+ kubectl apply -n argo -f pythonpod.yaml
+  
  <!-- Actual text -->
 
 You can find me on [![Twitter][1.2]][1], or on [![LinkedIn][3.2]][3].
