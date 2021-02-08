@@ -16,4 +16,5 @@ RUN pip3 install -r requirements.txt
 
 COPY ./setup.py /app
 COPY ./countobj.py /app
+COPY ./countobj01.py /app
 RUN pip3 install .

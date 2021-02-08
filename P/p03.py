@@ -5,21 +5,11 @@ import cv2
 import numpy as np
 import datetime
 
-#Read each of the images and then put it in the array
-def getFileName():
-    datetime_object = datetime.datetime.now()
-    print(datetime_object)
-    d1 = str(datetime_object)
-    output = d1.replace(":","")
-    output = output.replace(" ","_")
-    output = output[0:17]+".jpg"
-    return output
-
-nPhoto=3
+nPhoto=6
 n = 0
 imgs = []
 while(n < nPhoto):
-    archivo = "tmp/resultado0"+str(n)+".jpeg"
+    archivo = "tmp/img"+str(n)+".jpeg"
     print(archivo)
     img = cv2.imread(archivo)
     imgs.append(img)
