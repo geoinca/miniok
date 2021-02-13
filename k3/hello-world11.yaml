@@ -1,49 +1,77 @@
-# Output parameters provide a way to use the contents of a file,
-# as a parameter value in a workflow. In that regard, they are
-# similar in concept to script templates, with the difference being
-# that the ouput parameter values are obtained via file contents
-# instead of stdout (as with script templates). Secondly, there can
-# be multiple 'output.parameters.xxx' in a single template, versus
-# a single 'output.result' from a script template.
-# 
-# In this example, the 'whalesay' template produces an output
-# parameter named 'hello-param', taken from the file contents of
-# /tmp/hello_world.txt. This parameter is passed to a subsequent
-# step as an input parameter to the template, 'print-message'.
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: output-parameter-
+  generateName: coinflip-
 spec:
-  entrypoint: output-parameter
+  entrypoint: coinflip
   templates:
-  - name: output-parameter
+  - name: coinflip
     steps:
-    - - name: generate-parameter
-        template: whalesay
-    - - name: consume-parameter
-        template: print-message
-        arguments:
-          parameters:
-          - name: message
-            value: "{{steps.generate-parameter.outputs.parameters.hello-param}}"
+    # flip a coin
+    - - name: flip-coin
+        template: flip-coin
+    # evaluate the result in parallel
+    - - name: doNothing
+        template: doNothing                 # call donothing template if "donothing "
+        when: "{{steps.flip-coin.outputs.result}} == 0"
+      - name: bgr2Gray
+        template: bgr2Gray                 # call bgr2Gray template if "bgr2Gray"
+        when: "{{steps.flip-coin.outputs.result}} == 1"
+      - name: warpImages
+        template: warpImages                 # call warpImages template if "warpImages"
+        when: "{{steps.flip-coin.outputs.result}} == 2"        
+      - name: panorama
+        template: panorama                 # call PANORAMA template if "PANORAMA"
+        when: "{{steps.flip-coin.outputs.result}} > 2"        
 
-  - name: whalesay
+
+  # Return doNothing, bgr2Gray, warpImages, panorama based on a number of items in the bucket
+  - name: flip-coin
+    script:
+      image: geoincaks/pythonimg:0.1.2
+      command: [python3]
+      source: |
+        import boto3
+        from botocore.client import Config
+
+        s3AccesKey = 'tfq0M5o1QtNOJcP1nizr'
+        s3SecretKey = 'HbO5COQOXR6z3P0jgTVCBzWxkXFPXKsMqoItRzL6'
+        s3EndPointUrl = 'http://argo-artifacts:9000'
+        s3Bucket='infolder'
+        s3 = boto3.resource('s3',
+                            endpoint_url=s3EndPointUrl,
+                            aws_access_key_id=s3AccesKey,
+                            aws_secret_access_key=s3SecretKey,
+                            config=Config(signature_version='s3v4'),
+                            region_name='us-east-1')
+
+        my_bucket = s3.Bucket(s3Bucket)
+        result=0
+        for object_summary in my_bucket.objects.filter(Prefix=""):
+            result+=1
+          
+        print (result)
+
+  - name: doNothing
     container:
-      image: docker/whalesay:latest
+      image: alpine:3.6
       command: [sh, -c]
-      args: ["echo -n hello world > /tmp/hello_world.txt"]
-    outputs:
-      parameters:
-      - name: hello-param
-        valueFrom:
-          path: /tmp/hello_world.txt
+      args: ["echo \"it was donothing\""]
 
-  - name: print-message
-    inputs:
-      parameters:
-      - name: message
+  - name: bgr2Gray
     container:
-      image: docker/whalesay:latest
-      command: [cowsay]
-      args: ["{{inputs.parameters.message}}"]
+      image: alpine:3.6
+      command: [sh, -c]
+      args: ["echo \"it was BGR2GRAY\""]
+
+  - name: warpImages
+    container:
+      image: alpine:3.6
+      command: [sh, -c]
+      args: ["echo \"it was warpImages\""]      
+
+  - name: panorama
+    container:
+      image: alpine:3.6
+      command: [sh, -c]
+      args: ["echo \"it was panorama\""]       

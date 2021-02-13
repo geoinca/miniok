@@ -28,9 +28,9 @@ spec:
   # Return doNothing, bgr2Gray, warpImages, panorama based on a number of items in the bucket
   - name: flip-coin
     script:
-      image: geoincaks/pythonimg01:0.1.2
+      image: geoincaks/pythonimg:0.1.3
       command: [sh, -c]
-      args: [python3 countobj.py]
+      args: [python3 countobj01.py 'tfq0M5o1QtNOJcP1nizr' 'HbO5COQOXR6z3P0jgTVCBzWxkXFPXKsMqoItRzL6'  'http://argo-artifacts:9000' 'infolder']
 
   - name: doNothing
     container:

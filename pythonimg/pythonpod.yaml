@@ -7,7 +7,7 @@ metadata:
 spec:
   containers:
   - name: pytest
-    image: geoincaks/pythonimg:0.1.2
+    image: geoincaks/pythonimg:0.1.4
     command: ["/bin/sleep", "3650d"]
     imagePullPolicy: IfNotPresent
   restartPolicy: Always

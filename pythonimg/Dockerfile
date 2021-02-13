@@ -1,20 +1,53 @@
-FROM python:3.6.7
+# FROM python:3.6.7
+# RUN mkdir /app
+# WORKDIR /app
+# COPY requirements.txt /app/requirements.txt
+# RUN pip3 install --upgrade pip
+# RUN pip3 install -r requirements.txt
+# COPY ./countobj01.py /app
 
-RUN apt-get update && apt-get upgrade -y
 
-RUN apt-get install -y build-essential python3 python3-pip python3-dev git swig
 
-RUN pip install --upgrade pip
+# Download base image ubuntu 18.04
+FROM ubuntu:18.04
 
-ADD ./requirements.txt /app/requirements.txt
+# LABEL about the custom image
+LABEL maintainer="@geo_Inca"
+LABEL version="0.1.1"
+LABEL description="This is custom Docker Image for \
+test Services."
+# Disable Prompt During Packages Installation
+ARG DEBIAN_FRONTEND=noninteractive
+
+# Update Ubuntu Software repository
+RUN apt update
+
+# Install nginx, php-fpm and supervisord from ubuntu repository
+RUN apt install -y build-essential libssl-dev zlib1g-dev libncurses5-dev \
+                   libncursesw5-dev libreadline-dev libsqlite3-dev libgdbm-dev \
+                   libdb5.3-dev libbz2-dev libexpat1-dev liblzma-dev tk-dev libffi-dev \
+                   iputils-ping wget vim
+RUN apt install -y software-properties-common                   
+RUN apt install -y net-tools                   
+RUN apt install -y python3.6  python3-pip
 
 WORKDIR /app
+
 RUN pip3 install --upgrade pip
-RUN pip3 install -r requirements.txt
-
-# NOTE: including ConfigSpace in requirements make a lot of problem
-
-COPY ./setup.py /app
-COPY ./countobj.py /app
+ADD ./requirements.txt /app/requirements.txt
+RUN pip install -r requirements.txt
+COPY ./countobj00.py /app
 COPY ./countobj01.py /app
-RUN pip3 install .
+
+ARG s3AccessKey
+ARG s3SecretAccessKey
+ARG s3EndPointUrl
+ARG s3Bucket
+
+ENV s3AccessKey $s3AccessKey
+ENV s3SecretAccessKey $s3SecretAccessKey
+ENV s3EndPointUrl $s3EndPointUrl
+ENV s3Bucket $s3Bucket
+#EXPOSE 8080
+#RUN python3 countobj01.py $s3AccessKey $s3SecretAccessKey $s3EndPointUrl $s3Bucket 
+ENTRYPOINT  ["/bin/bash"]

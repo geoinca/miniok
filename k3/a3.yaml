@@ -1,39 +1,41 @@
-
 apiVersion: argoproj.io/v1alpha1
 kind: Workflow
 metadata:
-  generateName: daemon-nginx-
+  generateName: coinflip-
 spec:
-  entrypoint: daemon-nginx-example
-
+  entrypoint: coinflip
   templates:
-  - name: daemon-nginx-example
+  - name: coinflip
     steps:
-    - - name: nginx-server
-        template: nginx-server
-    - - name: nginx-client
-        template: nginx-client
-        arguments:
-          parameters:
-          - name: server-ip
-            value: "{{steps.nginx-server.ip}}"
+    # flip a coin
+    - - name: flip-coin
+        template: flip-coin
+    # evaluate the result in parallel
+    - - name: heads
+        template: heads                 # call heads template if "heads"
+        when: "{{steps.flip-coin.outputs.result}} == heads"
+      - name: tails
+        template: tails                 # call tails template if "tails"
+        when: "{{steps.flip-coin.outputs.result}} == tails"
 
-  - name: nginx-server
-    daemon: true
-    container:
-      image: nginx:1.13
-      readinessProbe:
-        httpGet:
-          path: /
-          port: 80
-        initialDelaySeconds: 2
-        timeoutSeconds: 1
+  # Return heads or tails based on a random number
+  - name: flip-coin
+    script:
+      image: python:alpine3.6
+      command: [python]
+      source: |
+        import random
+        result = "heads" if random.randint(0,1) == 0 else "tails"
+        print(result)
 
-  - name: nginx-client
-    inputs:
-      parameters:
-      - name: server-ip
+  - name: heads
     container:
-      image: appropriate/curl:latest
-      command: ["/bin/sh", "-c"]
-      args: ["echo curl --silent -G http://{{inputs.parameters.server-ip}}:80/ && curl --silent -G http://{{inputs.parameters.server-ip}}:80/"]
+      image: alpine:3.6
+      command: [sh, -c]
+      args: ["echo \"it was heads\""]
+
+  - name: tails
+    container:
+      image: alpine:3.6
+      command: [sh, -c]
+      args: ["echo \"it was tails\""]
