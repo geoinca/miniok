@@ -14,8 +14,8 @@ spec:
     - - name: doNothing
         template: doNothing                 # call donothing template if "donothing "
         when: "{{steps.flip-coin.outputs.result}} == 0"
-      - name: bgr2Gray
-        template: bgr2Gray                 # call bgr2Gray template if "bgr2Gray"
+      - name: faceAlignment
+        template: faceAlignment                 # call faceAlignment template if "faceAlignment"
         when: "{{steps.flip-coin.outputs.result}} == 1"
       - name: warpImages
         template: warpImages                 # call warpImages template if "warpImages"
@@ -38,7 +38,7 @@ spec:
       command: [sh, -c]
       args: ["echo \"it was donothing\""]
 
-  - name: bgr2Gray
+  - name: faceAlignment
     container:
       image: geoincaks/pythonfacealignment:0.1.4
       command: [sh, -c]
@@ -46,9 +46,9 @@ spec:
 
   - name: warpImages
     container:
-      image: alpine:3.6
+      image: geoincaks/pythonwarpimg:0.1.1
       command: [sh, -c]
-      args: ["echo \"it was warpImages\""]      
+      args: [python3 02warp2img.py ]      
 
   - name: panorama
     container:
