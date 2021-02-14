@@ -5,3 +5,4 @@ pandas==0.24.0
 PyYAML==5.1.1
 wheel==0.33.4
 numba==0.48
+opencv-python

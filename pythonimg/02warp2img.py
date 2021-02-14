@@ -1,8 +1,13 @@
-import sys
+import sys,os
+from os import scandir, getcwd
+from os.path import abspath
 import cv2
 import numpy as np
 import boto3
 from botocore.client import Config
+
+def ls(ruta = getcwd()):
+    return [abspath(arch.path) for arch in scandir(ruta) if arch.is_file()]
 
 #from google.colab.patches import cv2_imshow
 def draw_matches(img1, keypoints1, img2, keypoints2, matches):
@@ -56,10 +61,32 @@ def warpImages(img1, img2, H):
 
   return output_img
 
+s3AccesKey = 'tfq0M5o1QtNOJcP1nizr'
+s3SecretKey = 'HbO5COQOXR6z3P0jgTVCBzWxkXFPXKsMqoItRzL6'
+s3EndPointUrl = 'http://argo-artifacts:9000'
+s3Bucket='infolder'
+s3BucketOut='outfolder'
 
+s3 = boto3.resource('s3',
+                    endpoint_url=s3EndPointUrl,
+                    aws_access_key_id=s3AccesKey,
+                    aws_secret_access_key=s3SecretKey,
+                    config=Config(signature_version='s3v4'),
+                    region_name='us-east-1')
+mnt_loc = os.getcwd()+"/tmp/"
 
-img1 = cv2.imread("tmp/resultado001.jpeg")
-img2 = cv2.imread("tmp/resultado000.jpeg")
+my_bucket = s3.Bucket(s3Bucket)
+s3_files = []
+for object in my_bucket.objects.all():
+    s3_files.append(object)
+
+for elem in s3_files:
+    s3.Bucket(elem.bucket_name).download_file(elem.key, mnt_loc + elem.key)
+
+imgWarp=ls(mnt_loc)
+imgResult=mnt_loc+"imgresult01.jpeg"
+img1 = cv2.imread(imgWarp[0])
+img2 = cv2.imread(imgWarp[1])
 
 img1_gray = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
 img2_gray = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
@@ -75,7 +102,10 @@ bf = cv2.BFMatcher_create(cv2.NORM_HAMMING)
 
 # Find matching points
 matches = bf.knnMatch(descriptors1, descriptors2,k=2)
-
+#print(keypoints1[0].pt)
+#print(keypoints1[0].size)
+#print("Descriptor of the first keypoint: ")
+#print(descriptors1[0])
 
 all_matches = []
 for m, n in matches:
@@ -101,4 +131,6 @@ if len(good) > MIN_MATCH_COUNT:
     M, _ = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC,5.0)
     
     result = warpImages(img2, img1, M)
-    cv2.imwrite("resultado00.jpeg", result)
+    cv2.imwrite(imgResult, result)
+
+s3.Bucket(s3BucketOut).upload_file(imgResult,'imgresult01.jpeg')

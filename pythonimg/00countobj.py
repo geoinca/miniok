@@ -32,13 +32,4 @@ if __name__ == '__main__':
 
 
 
-
-
-
-
-s3EndPointURL='http://argo-artifacts:9000'
-s3AccessKey='tfq0M5o1QtNOJcP1nizr'
-s3SecretAccessKey='HbO5COQOXR6z3P0jgTVCBzWxkXFPXKsMqoItRzL6'
-s3Bucket='infolder'
-
  

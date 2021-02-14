@@ -56,3 +56,6 @@ bh_unicode_properties.cache
 # Sublime-github package stores a github token in this file
 # https://packagecontrol.io/packages/sublime-github
 GitHub.sublime-settings
+P/tmp/*
+pythonimg/*.ipynb
+pythonimg/.ipynb_checkpoints/p30-checkpoint.ipynb

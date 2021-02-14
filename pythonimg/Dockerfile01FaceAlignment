@@ -32,12 +32,13 @@ RUN apt install -y net-tools
 RUN apt install -y python3.6  python3-pip
 
 WORKDIR /app
-
+RUN mkdir tmp
 RUN pip3 install --upgrade pip
 ADD ./requirements.txt /app/requirements.txt
 RUN pip install -r requirements.txt
-COPY ./countobj00.py /app
-COPY ./countobj01.py /app
+COPY ./01facealignment.py /app
+COPY ./haarcascade_eye.xml /app
+COPY ./haarcascade_frontalface_default.xml /app
 
 ARG s3AccessKey
 ARG s3SecretAccessKey
@@ -48,6 +49,5 @@ ENV s3AccessKey $s3AccessKey
 ENV s3SecretAccessKey $s3SecretAccessKey
 ENV s3EndPointUrl $s3EndPointUrl
 ENV s3Bucket $s3Bucket
-#EXPOSE 8080
-#RUN python3 countobj01.py $s3AccessKey $s3SecretAccessKey $s3EndPointUrl $s3Bucket 
+
 ENTRYPOINT  ["/bin/bash"]
