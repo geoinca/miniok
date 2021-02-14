@@ -43,8 +43,14 @@ kubectl apply -n argo -f https://raw.githubusercontent.com/argoproj/argo/stable/
 
 # Create role bindings to give argo admin
 kubectl create rolebinding default-admin --clusterrole=admin --serviceaccount=argo:default --namespace=argo
-
 kubectl -n argo port-forward deployment/argo-server 2746:2746
+
+helm install --namespace=argo argo-artifacts stable/minio --set service.type=LoadBalancer --set fullnameOverride=argo-artifacts
+kubectl port-forward service/argo-artifacts -n argo 9000:9000
+
+
+kubectl -n argo patch configmap/workflow-controller-configmap --patch "$(cat ./minio-modified-minio.yaml)"
+
 
 $ brew install helm # mac, helm 3.x
 $ helm repo add minio https://helm.min.io/ # official minio Helm charts
@@ -217,10 +223,27 @@ argo submit --watch misc/workflow-argo.yml -p image=geoincaks/asv-environment:la
  docker run -it  docker/whalesay
 
 #docker pythonimg
- docker build -t geoincaks/pythonimg:0.1.1 .
- docker push geoincaks/pythonimg:0.1.1
+ docker build -t geoincaks/pythonimg:0.1.2 . 
+ docker push geoincaks/pythonimg:0.1.2
  kubectl apply -n argo -f pythonpod.yaml
-  
+
+docker build -t geoincaks/pythonimg:0.1.5 -f Dockerfile00CountObj  . 
+docker push geoincaks/pythonimg:0.1.5
+
+docker build -t geoincaks/pythonfacealignment:0.1.6 -f Dockerfile01FaceAlignment  . 
+docker push geoincaks/pythonfacealignment:0.1.6
+
+geoincaks/pythonwarpimg:0.1.1
+docker build -t geoincaks/pythonwarpimg:0.1.2 -f Dockerfile02WarpImg  .
+docker push geoincaks/pythonwarpimg:0.1.2
+
+###acc
+countobj01.py 'tfq0M5o1QtNOJcP1nizr' 'HbO5COQOXR6z3P0jgTVCBzWxkXFPXKsMqoItRzL6'  'http://argo-artifacts:9000' 'infolder'
+docker build -t geoincaks/pythonimg:0.1.1a   --build-arg s3AccessKey='tfq0M5o1QtNOJcP1nizr' --build-arg s3SecretAccessKey= 'HbO5COQOXR6z3P0jgTVCBzWxkXFPXKsMqoItRzL6' --build-arg s3EndPointUrl='http://argo-artifacts:9000'  --build-arg s3Bucket='infolder' .
+ 
+ 
+ docker build -t geoincaks/pythonimg:0.1.1 --build-arg s3AccessKey='tfq0M5o1QtNOJcP1nizr' --build-arg s3SecretAccessKey='HbO5COQOXR6z3P0jgTVCBzWxkXFPXKsMqoItRzL6' --build-arg s3EndPointUrl='http://argo-artifacts:9000'  --build-arg s3Bucket='infolder' .
+ 
  <!-- Actual text -->
 
 You can find me on [![Twitter][1.2]][1], or on [![LinkedIn][3.2]][3].

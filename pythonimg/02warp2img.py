@@ -61,76 +61,90 @@ def warpImages(img1, img2, H):
 
   return output_img
 
+def check(s3AccessKey,s3SecretAccessKey,s3EndPointUrl,s3Bucket,s3BucketOut):
+
+  s3 = boto3.resource('s3',
+                      endpoint_url=s3EndPointUrl,
+                      aws_access_key_id=s3AccesKey,
+                      aws_secret_access_key=s3SecretKey,
+                      config=Config(signature_version='s3v4'),
+                      region_name='us-east-1')
+  mnt_loc = os.getcwd()+"/tmp/"
+
+  my_bucket = s3.Bucket(s3Bucket)
+  s3_files = []
+  for object in my_bucket.objects.all():
+      s3_files.append(object)
+
+  for elem in s3_files:
+      s3.Bucket(elem.bucket_name).download_file(elem.key, mnt_loc + elem.key)
+
+  imgWarp=ls(mnt_loc)
+  imgResult=mnt_loc+"imgresult01.jpeg"
+  img1 = cv2.imread(imgWarp[0])
+  img2 = cv2.imread(imgWarp[1])
+
+  img1_gray = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
+  img2_gray = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
+
+  orb = cv2.ORB_create(nfeatures=2000)
+
+  # Find the key points and descriptors with ORB
+  keypoints1, descriptors1 = orb.detectAndCompute(img1, None)
+  keypoints2, descriptors2 = orb.detectAndCompute(img2, None)
+  # Create a BFMatcher object.
+  # It will find all of the matching keypoints on two images
+  bf = cv2.BFMatcher_create(cv2.NORM_HAMMING)
+
+  # Find matching points
+  matches = bf.knnMatch(descriptors1, descriptors2,k=2)
+  #print(keypoints1[0].pt)
+  #print(keypoints1[0].size)
+  #print("Descriptor of the first keypoint: ")
+  #print(descriptors1[0])
+
+  all_matches = []
+  for m, n in matches:
+    all_matches.append(m)
+
+  img3 = draw_matches(img1_gray, keypoints1, img2_gray, keypoints2, all_matches[:30])
+
+  good = []
+  for m, n in matches:
+      if m.distance < 0.6 * n.distance:
+          good.append(m)
+      
+  cv2.drawKeypoints(img1, [keypoints1[m.queryIdx] for m in good], None, (255, 0, 255))
+
+  MIN_MATCH_COUNT = 5
+
+  if len(good) > MIN_MATCH_COUNT:
+      # Convert keypoints to an argument for findHomography
+      src_pts = np.float32([ keypoints1[m.queryIdx].pt for m in good]).reshape(-1,1,2)
+      dst_pts = np.float32([ keypoints2[m.trainIdx].pt for m in good]).reshape(-1,1,2)
+
+      # Establish a homography
+      M, _ = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC,5.0)
+      
+      result = warpImages(img2, img1, M)
+      cv2.imwrite(imgResult, result)
+
+  s3.Bucket(s3BucketOut).upload_file(imgResult,'imgresult01.jpeg')
+
+if __name__ == '__main__':
+    if len(sys.argv) != 4:
+        s3AccesKey = sys.argv[1]
+        s3SecretKey = sys.argv[2]
+        s3EndPointUrl= sys.argv[3]
+        s3Bucket= sys.argv[4]
+        s3BucketOut= sys.argv[5]
+        check(s3AccesKey,s3SecretKey,s3EndPointUrl,s3Bucket,s3BucketOut)
+    else:
+        print (0)
+
 s3AccesKey = 'tfq0M5o1QtNOJcP1nizr'
 s3SecretKey = 'HbO5COQOXR6z3P0jgTVCBzWxkXFPXKsMqoItRzL6'
 s3EndPointUrl = 'http://argo-artifacts:9000'
 s3Bucket='infolder'
 s3BucketOut='outfolder'
 
-s3 = boto3.resource('s3',
-                    endpoint_url=s3EndPointUrl,
-                    aws_access_key_id=s3AccesKey,
-                    aws_secret_access_key=s3SecretKey,
-                    config=Config(signature_version='s3v4'),
-                    region_name='us-east-1')
-mnt_loc = os.getcwd()+"/tmp/"
-
-my_bucket = s3.Bucket(s3Bucket)
-s3_files = []
-for object in my_bucket.objects.all():
-    s3_files.append(object)
-
-for elem in s3_files:
-    s3.Bucket(elem.bucket_name).download_file(elem.key, mnt_loc + elem.key)
-
-imgWarp=ls(mnt_loc)
-imgResult=mnt_loc+"imgresult01.jpeg"
-img1 = cv2.imread(imgWarp[0])
-img2 = cv2.imread(imgWarp[1])
-
-img1_gray = cv2.cvtColor(img1, cv2.COLOR_BGR2GRAY)
-img2_gray = cv2.cvtColor(img2, cv2.COLOR_BGR2GRAY)
-
-orb = cv2.ORB_create(nfeatures=2000)
-
-# Find the key points and descriptors with ORB
-keypoints1, descriptors1 = orb.detectAndCompute(img1, None)
-keypoints2, descriptors2 = orb.detectAndCompute(img2, None)
-# Create a BFMatcher object.
-# It will find all of the matching keypoints on two images
-bf = cv2.BFMatcher_create(cv2.NORM_HAMMING)
-
-# Find matching points
-matches = bf.knnMatch(descriptors1, descriptors2,k=2)
-#print(keypoints1[0].pt)
-#print(keypoints1[0].size)
-#print("Descriptor of the first keypoint: ")
-#print(descriptors1[0])
-
-all_matches = []
-for m, n in matches:
-  all_matches.append(m)
-
-img3 = draw_matches(img1_gray, keypoints1, img2_gray, keypoints2, all_matches[:30])
-
-good = []
-for m, n in matches:
-    if m.distance < 0.6 * n.distance:
-        good.append(m)
-    
-cv2.drawKeypoints(img1, [keypoints1[m.queryIdx] for m in good], None, (255, 0, 255))
-
-MIN_MATCH_COUNT = 5
-
-if len(good) > MIN_MATCH_COUNT:
-    # Convert keypoints to an argument for findHomography
-    src_pts = np.float32([ keypoints1[m.queryIdx].pt for m in good]).reshape(-1,1,2)
-    dst_pts = np.float32([ keypoints2[m.trainIdx].pt for m in good]).reshape(-1,1,2)
-
-    # Establish a homography
-    M, _ = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC,5.0)
-    
-    result = warpImages(img2, img1, M)
-    cv2.imwrite(imgResult, result)
-
-s3.Bucket(s3BucketOut).upload_file(imgResult,'imgresult01.jpeg')

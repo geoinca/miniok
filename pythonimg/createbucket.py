@@ -1,8 +1,8 @@
 import boto3
 from botocore.client import Config
 
-s3AccesKey = 'tfq0M5o1QtNOJcP1nizr'
-s3SecretKey = 'HbO5COQOXR6z3P0jgTVCBzWxkXFPXKsMqoItRzL6'
+s3AccesKey = 'AKIAIOSFODNN7EXAMPLE'
+s3SecretKey = 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'
 s3EndPointUrl = 'http://argo-artifacts:9000'
 s3Bucket='infolder'
 s3 = boto3.resource('s3',
