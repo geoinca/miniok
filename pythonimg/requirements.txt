@@ -1,8 +1,0 @@
-boto3
-tinys3
-numpy==1.15.2
-pandas==0.24.0
-PyYAML==5.1.1
-wheel==0.33.4
-numba==0.48
-opencv-python

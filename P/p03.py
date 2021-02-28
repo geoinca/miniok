@@ -1,9 +1,14 @@
 #pip install opencv-contrib-python
 # numpy
 import sys,os
+from os import scandir, getcwd
+from os.path import abspath
 import cv2
 import numpy as np
 import datetime
+
+def ls(ruta = getcwd()):
+    return [abspath(arch.path) for arch in scandir(ruta) if arch.is_file()]
 
 nPhoto=6
 n = 0
@@ -14,6 +19,10 @@ while(n < nPhoto):
     img = cv2.imread(archivo)
     imgs.append(img)
     n += 1
+
+mnt_loc = os.getcwd()+"/tmp/"
+imgWarp=ls(mnt_loc)
+
 
 #Stitch the images on the array, and save the output image. 
 stitcher = cv2.Stitcher.create(cv2.Stitcher_PANORAMA)
