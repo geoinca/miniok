@@ -94,14 +94,68 @@ https://www.youtube.com/watch?v=sUPkGChvD54
 
 # Argo Events Workflow
 
+https://argoproj.github.io/argo-events/setup/minio/
+
+event-sources
 ```console
-kubectl -n argo-events apply -f https://raw.githubusercontent.com/
+kubectl apply -n argo-events -f https://raw.githubusercontent.com/argoproj/argo-events/stable/examples/event-sources/minio.yaml
+
+
+```
+sensor
+```console
+kubectl apply -n argo-events -f https://raw.githubusercontent.com/argoproj/argo-events/stable/examples/sensors/minio.yaml
 
 ```
 
+## Webhook
 
+### sample 1
 
+event-sources
+```console
+https://raw.githubusercontent.com/geoinca/miniok/main/argoevents/webhook/a00a-event-source.yaml
+```
+sensor
 
+```console
+https://raw.githubusercontent.com/geoinca/miniok/main/argoevents/webhook/a00b-event-sensor.yaml
+```
+
+### sample 2
+
+event-sources
+```console
+https://raw.githubusercontent.com/geoinca/miniok/main/argoevents/webhook/a001a-event-source.yaml
+```
+sensor
+
+```console
+https://raw.githubusercontent.com/geoinca/miniok/main/argoevents/webhook/a001b-event-sensor.yaml
+```
+## Minio
+
+event-sources
+```console
+https://raw.githubusercontent.com/geoinca/miniok/main/argoevents/minio/001a-event-source-minio.yaml
+```
+sensor
+
+```console
+https://raw.githubusercontent.com/geoinca/miniok/main/argoevents/minio/001b-event-sensor-minio.yaml
+```
+
+### sample 2
+
+event-sources
+```console
+https://raw.githubusercontent.com/geoinca/miniok/main/argoevents/minio/030a-event-source-minio.yaml
+```
+sensor
+
+```console
+https://raw.githubusercontent.com/geoinca/miniok/main/argoevents/minio/030b-event-sensor-minio.yaml
+```
 
 
 # Setup
