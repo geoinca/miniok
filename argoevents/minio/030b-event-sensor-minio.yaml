@@ -3,13 +3,12 @@ kind: Sensor
 metadata:
   name: minio
 spec:
+  template:
+    serviceAccountName: argo-events-sa
   dependencies:
     - name: test-dep
       eventSourceName: minio
       eventName: example
-  template:
-    serviceAccountName: argo-events-sa
-
   triggers:
     - template:
         name: minio-workflow-trigger
@@ -36,7 +35,6 @@ spec:
               #         limits:
               #           memory: 32Mi
               #           cpu: 100m
-
               apiVersion: argoproj.io/v1alpha1
               kind: Workflow                  # new type of k8s spec
               metadata:
@@ -46,9 +44,9 @@ spec:
                 templates:
                 - name: whalesay              # name of the template
                   container:
-                    image: docker/whalesay
-                    command: [cowsay]
-                    args: ["This is the message you sent me:\n", ""]
+                    image: geoincaks/pythonimg:0.1.5
+                    command: [sh,c]
+                    args: [python3 00countobj.py 'AKIAIOSFODNN7EXAMPLE' 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'  'http://argo-artifacts.argo:9000' 'infolder' ,""]
                     resources:                # limit the resources
                       limits:
                         memory: 32Mi
@@ -59,4 +57,5 @@ spec:
             - src:
                 dependencyName: test-dep
                 dataKey: notification.0.s3.object.key
+                #dataKey: python3 00countobj.py 'AKIAIOSFODNN7EXAMPLE' 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'  'http://argo-artifacts.argo:9000' 'infolder'
               dest: spec.templates.0.container.args.0

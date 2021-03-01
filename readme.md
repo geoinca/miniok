@@ -114,7 +114,10 @@ sensor
 kubectl apply -n argo-events -f https://raw.githubusercontent.com/argoproj/argo-events/stable/examples/sensors/minio.yaml
 
 ```
-
+test argo
+```console
+argo submit --watch -n argo  https://raw.githubusercontent.com/geoinca/miniok/main/argo/hello-world10.yaml
+```
 ## Webhook
 
 ### sample 1
@@ -167,6 +170,10 @@ kubectl -n argo-events apply -f https://raw.githubusercontent.com/geoinca/miniok
 
 
 # Setup
+## Requirements
+* Installed Kubernetes 1.9 or later
+* Installed [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/)
+* Have a [kubeconfig](https://kubernetes.io/docs/tasks/access-application-cluster/configure-access-multiple-clusters/) file (default location is `~/.kube/config`).
 
 ## Install Minikube
 
@@ -180,6 +187,16 @@ Para tener disponible en la consola el comando minikube, puedes añadir el coman
 ```console
 sudo cp minikube /usr/local/bin && rm minikube
 ```
+
+
+
+## 1. Download Argo
+
+Download the latest Argo CD version from https://github.com/argoproj/argo/releases/latest.
+
+argo cliente  
+```
+curl -sSL -o /usr/local/bin/argo         https://github.com/argoproj/argo/releases/download/v2.3.0/argo-linux-amd64
 
 
  <!-- Actual text -->

@@ -7,7 +7,7 @@ spec:
     example:
       bucket:
         name: infolder
-      endpoint: argo-artifacts:9000
+      endpoint: argo-artifacts.argo:9000
       events:
         - s3:ObjectCreated:Put
       #  - s3:ObjectRemoved:Delete
