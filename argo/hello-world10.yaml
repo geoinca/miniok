@@ -30,7 +30,7 @@ spec:
     script:
       image: geoincaks/pythonimg:0.1.5
       command: [sh, -c]
-      args: [python3 00countobj.py 'AKIAIOSFODNN7EXAMPLE' 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'  'http://argo-artifacts:9000' 'infolder']
+      args: [python3 00countobj.py 'AKIAIOSFODNN7EXAMPLE' 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'  'http://argo-artifacts.argo:9000' 'infolder']
 
   - name: doNothing
     container:
@@ -42,13 +42,13 @@ spec:
     container:
       image: geoincaks/pythonfacealignment:0.1.6
       command: [sh, -c]
-      args: [python3 01facealignment.py 'AKIAIOSFODNN7EXAMPLE' 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'  'http://argo-artifacts:9000' 'infolder' 'outfolder']
+      args: [python3 01facealignment.py 'AKIAIOSFODNN7EXAMPLE' 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'  'http://argo-artifacts.argo:9000' 'infolder' 'outfolder']
 
   - name: warpImages
     container:
       image: geoincaks/pythonwarpimg:0.1.2
       command: [sh, -c]
-      args: [python3 02warp2img.py 'AKIAIOSFODNN7EXAMPLE' 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'  'http://argo-artifacts:9000' 'infolder' 'outfolder']      
+      args: [python3 02warp2img.py 'AKIAIOSFODNN7EXAMPLE' 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'  'http://argo-artifacts.argo:9000' 'infolder' 'outfolder']      
 
   - name: panorama
     container:
