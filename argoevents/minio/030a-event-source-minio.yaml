@@ -9,7 +9,10 @@ spec:
         name: infolder
       endpoint: argo-artifacts.argo:9000
       events:
-        - s3:ObjectCreated:Put
+        - s3:ObjectCreated:PutLegalHold
+      #  - s3:ObjectCreated:PutRetention
+      #  - s3:ObjectCreated:CompleteMultipartUpload
+      #  - s3:ObjectCreated:Put
       #  - s3:ObjectRemoved:Delete
       insecure: true
       accessKey:
