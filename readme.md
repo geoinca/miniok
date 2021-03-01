@@ -45,7 +45,14 @@ kubectl apply -n argo-events -f https://raw.githubusercontent.com/argoproj/argo-
 
 kubectl create rolebinding default-admin --clusterrole=admin --serviceaccount=argo-events:default --namespace=argo-events
 
+
+
 ```
+secret 
+```console
+kubectl create secret generic argo-artifacts --from-literal=accesskey="AKIAIOSFODNN7EXAMPLE" --from-literal=secretkey="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"  -n argo-events
+```
+
 
 # Install with a validating admission controller
 ```console
@@ -137,24 +144,25 @@ https://raw.githubusercontent.com/geoinca/miniok/main/argoevents/webhook/a001b-e
 
 event-sources
 ```console
-https://raw.githubusercontent.com/geoinca/miniok/main/argoevents/minio/001a-event-source-minio.yaml
+kubectl -n argo-events apply -f https://raw.githubusercontent.com/geoinca/miniok/main/argoevents/minio/001a-event-source-minio.yaml
 ```
 sensor
 
 ```console
-https://raw.githubusercontent.com/geoinca/miniok/main/argoevents/minio/001b-event-sensor-minio.yaml
+kubectl -n argo-events apply -f https://raw.githubusercontent.com/geoinca/miniok/main/argoevents/minio/001b-event-sensor-minio.yaml
 ```
 
 ### sample 2
 
 event-sources
 ```console
-https://raw.githubusercontent.com/geoinca/miniok/main/argoevents/minio/030a-event-source-minio.yaml
+
+kubectl -n argo-events apply -f https://raw.githubusercontent.com/geoinca/miniok/main/argoevents/minio/030a-event-source-minio.yaml
 ```
 sensor
 
 ```console
-https://raw.githubusercontent.com/geoinca/miniok/main/argoevents/minio/030b-event-sensor-minio.yaml
+kubectl -n argo-events apply -f https://raw.githubusercontent.com/geoinca/miniok/main/argoevents/minio/030b-event-sensor-minio.yaml
 ```
 
 
