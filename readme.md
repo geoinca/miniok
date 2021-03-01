@@ -6,8 +6,10 @@ minikube start
 minikube dashboard
 
 # Argo
-kubectl create ns argo &&
-kubectl apply -n argo -f https://raw.githubusercontent.com/argoproj/argo/stable/manifests/install.yaml &&
+kubectl create ns argo 
+
+kubectl apply -n argo -f https://raw.githubusercontent.com/argoproj/argo/stable/manifests/install.yaml 
+
 kubectl create rolebinding default-admin --clusterrole=admin --serviceaccount=argo:default --namespace=argo
 
 kubectl -n argo port-forward deployment/argo-server 2746:2746 &&
@@ -32,7 +34,7 @@ kubectl apply -f  https://raw.githubusercontent.com/argoproj/argo-events/stable/
 
 kubectl apply -n argo-events -f https://raw.githubusercontent.com/argoproj/argo-events/stable/examples/eventbus/native.yaml
 
-demo@demo:~$ kubectl apply -f  https://raw.githubusercontent.com/argoproj/argo-events/stable/manifests/install.yaml
+
 
 
 kubectl create rolebinding default-admin --clusterrole=admin --serviceaccount=argo-events:default --namespace=argo-events
@@ -42,30 +44,35 @@ kubectl create rolebinding default-admin --clusterrole=admin --serviceaccount=ar
 # Install with a validating admission controller
 kubectl apply -f https://raw.githubusercontent.com/argoproj/argo-events/stable/manifests/install-validating-webhook.yaml
 
-kubectl -n argo-events apply -f https://raw.githubusercontent.com/argoproj/argo-events/stable/examples/eventbus/native.yaml
+
 
 
 
 # Argo Samples
 https://github.com/argoproj/argo-workflows/blob/master/examples/README.md
+
 https://github.com/argoproj/argo-workflows/tree/master/examples
 
 argo submit --watch -n argo https://raw.githubusercontent.com/argoproj/argo-workflows/master/examples/steps.yaml
+
 
 # Argo Events Samples
 
 git clone https://github.com/vfarcic/argo-events-demo.git
 
 kubectl -n argo-events apply -f https://raw.githubusercontent.com/vfarcic/argo-events-demo/master/event-source.yaml
+
 kubectl -n argo-events apply -f https://raw.githubusercontent.com/vfarcic/argo-events-demo/master/sensor.yaml
 
 
 
 kubectl -n argo-events apply -f 01event-source-test-01.yaml
+
 kubectl -n argo-events apply -f 01event-sensor-test-01.yaml
 
 
 kubectl -n argo-events port-forward service/webhook-eventsource-svc 12000:12000
+
 kubectl -n argo-events get eventsource
 
 curl -X POST -H "Content-Type: application/json"   -d '{"message":"this is my first webhook"}'  http://localhost:12000/devops-toolkit
@@ -91,8 +98,8 @@ kubectl -n argo-events apply -f https://raw.githubusercontent.com/
 Nota: Este documento muestra cómo instalar Minikube en Linux usando un ejecutable autocontenido. Para métodos alternativos de instalación en Linux, ver Otros métodos de Instalación en el repositorio GitHub oficial de Minikube.
 Puedes instalar Minikube en Linux descargando un ejecutable autocontenido:
 
-curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 \
-  && chmod +x minikube
+curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64  && chmod +x minikube
+
 Para tener disponible en la consola el comando minikube, puedes añadir el comando al $PATH o moverlo por ejemplo a /usr/local/bin:
 
 sudo cp minikube /usr/local/bin && rm minikube
