@@ -89,14 +89,25 @@ kubectl -n argo-events apply -f 01event-source-test-01.yaml
 
 kubectl -n argo-events apply -f 01event-sensor-test-01.yaml
 
+kubectl  -n argo-events  get services
 
-kubectl -n argo-events port-forward service/webhook-eventsource-svc 12000:12000
+kubectl -n argo-events port-forward service/slack-eventsource-svc 12000:12000
+
+kubectl -n argo-events port-forward service/webhook-eventsource-svc 16000:16000
 
 kubectl -n argo-events get eventsource
 
-curl -X POST -H "Content-Type: application/json"   -d '{"message":"this is my first webhook"}'  http://localhost:12000/devops-toolkit
+curl -X POST -H "Content-Type: application/json"   -d '{"message":"this is my first webhook"}'  http://localhost:15000/devops-toolkit
+
+curl -X POST -H "Content-Type: application/json"   -d '{"message":"this is my first webhook"}'  http://localhost:16000/example
 
 ```
+
+
+
+
+
+
 https://www.youtube.com/watch?v=sUPkGChvD54
 
 # Argo Events Workflow
@@ -195,10 +206,23 @@ sudo cp minikube /usr/local/bin && rm minikube
 Download the latest Argo CD version from https://github.com/argoproj/argo/releases/latest.
 
 argo cliente  
-```
+```console
 curl -sSL -o /usr/local/bin/argo         https://github.com/argoproj/argo/releases/download/v2.3.0/argo-linux-amd64
+```
 
 
+```console
+kubectl delete all --all -n argo-events
+kubectl delete namespace argo-events
+```
+## Use Secrets
+
+https://kubernetes.io/es/docs/concepts/configuration/secret/
+https://github.com/argoproj/argo-workflows/blob/master/examples/secrets.yaml
+
+```console
+kubectl apply -f slack-secret.yaml -n argo
+```
  <!-- Actual text -->
 
 You can find me on [![Twitter][1.2]][1], or on [![LinkedIn][2.2]][2]

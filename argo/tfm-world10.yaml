@@ -1,0 +1,108 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: tfm-
+spec:
+  entrypoint: tfm
+  volumes:
+  - name: argo-artifacts-vol
+    secret:
+      secretName: argo-artifacts
+  - name: tfm-secret-vol
+    secret:
+      secretName: tfm-secret       
+  templates:
+  - name: tfm
+    steps:
+    # tfm a coin
+    - - name: tfm-coin
+        template: tfm-coin
+    # evaluate the result in parallel
+    - - name: doNothing
+        template: doNothing                 # call donothing template if "donothing "
+        when: "{{steps.tfm-coin.outputs.result}} == 0"
+      - name: faceAlignment
+        template: faceAlignment                 # call faceAlignment template if "faceAlignment"
+        when: "{{steps.tfm-coin.outputs.result}} == 1"
+      - name: warpImages
+        template: warpImages                 # call warpImages template if "warpImages"
+        when: "{{steps.tfm-coin.outputs.result}} == 2"        
+      - name: panorama
+        template: panorama                 # call PANORAMA template if "PANORAMA"
+        when: "{{steps.tfm-coin.outputs.result}} > 2"        
+  # Return doNothing, bgr2Gray, warpImages, panorama based on a number of items in the bucket
+  - name: tfm-coin
+    container:
+      image: geoincaks/pythonimg:0.1.5
+      command: [sh, -c]
+      args: [python3 00countobj.py '$MYACCESSKEY' '$MYSECRETKEY'  'http://argo-artifacts.argo:9000' 'infolder']
+      env:
+      - name: MYACCESSKEY
+        valueFrom:
+          secretKeyRef:
+            name: argo-artifacts
+            key: accesskey
+      - name: MYSECRETKEY
+        valueFrom:
+          secretKeyRef:
+            name: argo-artifacts
+            key: secretkey
+      - name: MYARGOENDPOINT
+        valueFrom:
+          secretKeyRef:
+            name: tfm-secret
+            key: minioendpoint              
+      volumeMounts:
+      - name: argo-artifacts-vol
+        mountPath: "/argo-artifacts/mountpath"
+      - name: tfm-secret-vol
+        mountPath: "/tfm-secret/mountpath"              
+  - name: doNothing
+    container:
+      image: alpine:3.6
+      command: [sh, -c]
+      args: ["echo \"it was donothing '$MYACCESSKEY' '$MYSECRETKEY' $MYTOKENKEY $MYSIGNINGSECRET\""]      
+      env:
+      - name: MYACCESSKEY
+        valueFrom:
+          secretKeyRef:
+            name: argo-artifacts
+            key: accesskey
+      - name: MYSECRETKEY
+        valueFrom:
+          secretKeyRef:
+            name: argo-artifacts
+            key: secretkey      
+      - name: MYTOKENKEY
+        valueFrom:
+          secretKeyRef:
+            name: tfm-secret 
+            key: tokenkey
+      - name: MYSIGNINGSECRET
+        valueFrom:
+          secretKeyRef:
+            name: tfm-secret 
+            key: signingSecret                        
+      volumeMounts:
+      - name: argo-artifacts-vol
+        mountPath: "/argo-artifacts/mountpath"
+      - name: tfm-secret-vol
+        mountPath: "/tfm-secret/mountpath"  
+
+  - name: faceAlignment
+    container:
+      image: geoincaks/pythonfacealignment:0.1.6
+      command: [sh, -c]
+      args: [python3 01facealignment.py 'AKIAIOSFODNN7EXAMPLE' 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'  'http://argo-artifacts.argo:9000' 'infolder' 'outfolder']
+
+  - name: warpImages
+    container:
+      image: geoincaks/pythonwarpimg:0.1.2
+      command: [sh, -c]
+      args: [python3 02warp2img.py 'AKIAIOSFODNN7EXAMPLE' 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'  'http://argo-artifacts.argo:9000' 'infolder' 'outfolder']      
+
+  - name: panorama
+    container:
+      image: alpine:3.6
+      command: [sh, -c]
+      args: ["echo \"it was panorama\""]       
