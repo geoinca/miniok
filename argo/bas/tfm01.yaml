@@ -1,0 +1,93 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: tfm01-test-
+spec:
+  entrypoint: countitem
+  volumes:
+  - name: argo-artifacts-vol
+    secret:
+      secretName: argo-artifacts
+  - name: tfm-secret-vol
+    secret:
+      secretName: tfm-secret       
+  templates:
+  - name: countitem
+    steps:
+    - - name: tfm-coin
+        template: tfm-coin 
+    - - name: doNothing
+        template: tfmdoNothingtemplate                # call donothing template if "donothing "
+        when: "{{steps.tfm-coin.outputs.result}} == 0"      
+  - name: tfm-coin
+    container:
+      image: geoincaks/pythonimg:0.1.5  
+      command: [sh, -c]
+      args: [  python3  00countobj.py  "$MYACCESSKEY" "$MYSECRETKEY"  "$MYARGOENDPOINT" "$MYARGOBUCKETIN"      ]
+      env:
+      - name: MYACCESSKEY
+        valueFrom:
+          secretKeyRef:
+            name: argo-artifacts
+            key: accesskey
+      - name: MYSECRETKEY
+        valueFrom:
+          secretKeyRef:
+            name: argo-artifacts
+            key: secretkey
+      - name: MYARGOENDPOINT
+        valueFrom:
+          secretKeyRef:
+            name: tfm-secret
+            key: minioendpoint
+      - name: MYARGOBUCKETIN
+        valueFrom:
+          secretKeyRef:
+            name: tfm-secret
+            key: bucketin              
+      volumeMounts:
+      - name: argo-artifacts-vol
+        mountPath: "/argo-artifacts/mountpath"
+      - name: tfm-secret-vol
+        mountPath: "/tfm-secret/mountpath" 
+  - name: tfmdoNothingtemplate
+    container:
+      image: appropriate/curl:edge
+      command: [sh, -c]
+      args: ["curl -F token=$MYTOKENKEY -F channel=tfm -F text=\"Reminder: Hello, https://a.slack-edge.com/fe98f/marketing/img/homepage/hp-existing-users/slack-connect-ui.png (edited) \" $MYSLACKPOST"]
+      env:
+      - name: MYACCESSKEY
+        valueFrom:
+          secretKeyRef:
+            name: argo-artifacts
+            key: accesskey
+      - name: MYSECRETKEY
+        valueFrom:
+          secretKeyRef:
+            name: argo-artifacts
+            key: secretkey
+      - name: MYARGOENDPOINT
+        valueFrom:
+          secretKeyRef:
+            name: tfm-secret
+            key: minioendpoint
+      - name: MYARGOBUCKETIN
+        valueFrom:
+          secretKeyRef:
+            name: tfm-secret
+            key: bucketin
+      - name: MYTOKENKEY
+        valueFrom:
+          secretKeyRef:
+            name: tfm-secret
+            key: tokenkey
+      - name: MYSLACKPOST
+        valueFrom:
+          secretKeyRef:
+            name: tfm-secret
+            key: slackpost                          
+      volumeMounts:
+      - name: argo-artifacts-vol
+        mountPath: "/argo-artifacts/mountpath"
+      - name: tfm-secret-vol
+        mountPath: "/tfm-secret/mountpath"         

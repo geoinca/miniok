@@ -1,0 +1,15 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: a01-nginx-
+spec:
+  entrypoint: nginx
+  templates:
+  - name: nginx
+    container:
+      image: appropriate/curl:edge
+      command: [sh,-c]
+      args: ["until `curl -G 'http://127.0.0.1/' >& /tmp/out`; do echo spleep && sleep 1; done && cat /tmp/out"]
+    sidecars:
+    - name: nginx
+      image: nginx:1.13

@@ -2,6 +2,9 @@
 
 ```console
 minikube start   --container-runtime=docker  --v=10 --alsologtostderr --cpus 2 --memory 8192
+minikube start   --cpus 2 --memory 8192
+minikube start --vm-driver=hyperkit --memory 8192 --mount \
+               --mount-string /home/demo/k8/DockerPHPTutorial/src:/data
 
 minikube start
 minikube dashboard
@@ -223,6 +226,9 @@ https://github.com/argoproj/argo-workflows/blob/master/examples/secrets.yaml
 ```console
 kubectl apply -f slack-secret.yaml -n argo
 ```
+kubectl apply -f /home/demo/k8/miniok/.bas/sp/wp/tfm-ngp-pvc.yaml -n test
+
+kubectl  port-forward service/nginx-service 8888:80 -n test
  <!-- Actual text -->
 
 You can find me on [![Twitter][1.2]][1], or on [![LinkedIn][2.2]][2]

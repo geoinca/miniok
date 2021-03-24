@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: a06-artifacts-
+spec:
+  entrypoint: a
+  templates:
+  - name: a
+    steps:
+    - - name: g-art
+        template: whalesay
+    - - name: c
+        template: print-message
+        arguments:
+          artifacts:
+          - name: message
+            from: "{{steps.g-art.outputs.artifacts.hello-art}}"
+  - name: whalesay
+    container:
+      image: docker/whalesay:latest
+      command:  [sh, -c]
+      args: ["cowsay hello Artifact | tee /tmp/hello_world.txt"]
+    outputs:
+      artifacts:
+      - name: hello-art
+        path: /tmp/hello_world.txt
+  - name: print-message
+    inputs:
+      artifacts:
+      - name: message
+        path: /tmp/message
+
+

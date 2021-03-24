@@ -1,17 +1,17 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Sensor
 metadata:
-  name: webhook
+  name: slack
 spec:
   template:
     serviceAccountName: argo-events-sa
   dependencies:
     - name: test-dep
-      eventSourceName: webhook
-      eventName: example
+      eventSourceName: slack
+      eventName: example-insecure
   triggers:
     - template:
-        name: webhook-workflow-trigger
+        name: slack-workflow
         k8s:
           group: argoproj.io
           version: v1alpha1
@@ -22,37 +22,24 @@ spec:
               apiVersion: argoproj.io/v1alpha1
               kind: Workflow
               metadata:
-                generateName: webhook-
+                generateName: slack-
               spec:
                 entrypoint: whalesay
                 arguments:
                   parameters:
                   - name: message
-                    # the value will get overridden by event payload from test-dep
+                    # the value will get overridden by the event payload from test-dep
                     value: hello world
                 templates:
                 - name: whalesay
-                  serviceAccountName: argo-events-sa
                   inputs:
                     parameters:
                     - name: message
                   container:
                     image: docker/whalesay:latest
                     command: [cowsay]
-                    args: ["This is the message you sent me:\n","{{inputs.parameters.message}}"]
-                    volumeMounts:
-                    - name: foo
-                      mountPath: "/etc/foo"
-                      readOnly: true
-                    volumes:
-                    - name: foo
-                      secret:
-                        secretName: mysecret
-                        items:
-                        - key: username
-                          path: my-group/my-username  
+                    args: ["{{inputs.parameters.message}}"]
           parameters:
             - src:
                 dependencyName: test-dep
-                dataKey: body.message
               dest: spec.arguments.parameters.0.value

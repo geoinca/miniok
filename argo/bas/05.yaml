@@ -1,0 +1,36 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: a05-multisteap-
+spec:
+  entrypoint: hello
+  templates:
+  - name: hello
+    steps:
+    - - name: hello1a
+        template: whalesay
+        arguments:
+          parameters:
+          - name: message
+            value: "hello1a"
+    - - name: hello2a
+        template: whalesay
+        arguments:
+          parameters:
+          - name: message
+            value: "hello2a"            
+      - name: hello2b
+        template: whalesay
+        arguments:
+          parameters:
+          - name: message
+            value: "hello2b"
+  - name: whalesay
+    inputs:
+      parameters:
+      - name: message
+    container:
+      image: docker/whalesay:latest
+      command: [cowsay]
+      args: ["{{inputs.parameters.message}}"]
+ 

@@ -5,10 +5,10 @@ metadata:
 spec:
   service:
     ports:
-      - port: 12000
-        targetPort: 12000
+      - port: 15000
+        targetPort: 15000
   webhook:
     devops-toolkit:
-      port: "12000"
+      port: "15000"
       endpoint: /devops-toolkit
       method: POST

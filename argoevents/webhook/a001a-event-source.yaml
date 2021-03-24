@@ -5,10 +5,10 @@ metadata:
 spec:
   service:
     ports:
-      - port: 12000
-        targetPort: 12000
+      - port: 16000
+        targetPort: 16000
   webhook:
     example:
-      port: "12000"
+      port: "16000"
       endpoint: /example
       method: POST
