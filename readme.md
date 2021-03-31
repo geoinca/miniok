@@ -44,11 +44,9 @@ kubectl apply -f  https://raw.githubusercontent.com/argoproj/argo-events/stable/
 kubectl apply -n argo-events -f https://raw.githubusercontent.com/argoproj/argo-events/stable/examples/eventbus/native.yaml
 
 
-
-
 kubectl create rolebinding default-admin --clusterrole=admin --serviceaccount=argo-events:default --namespace=argo-events
 
-
+kubectl create clusterrolebinding geoinca-cluster-admin-binding --clusterrole=cluster-admin --user=geoinca@gmail.com
 
 ```
 secret 
@@ -130,7 +128,7 @@ kubectl apply -n argo-events -f https://raw.githubusercontent.com/argoproj/argo-
 ```
 test argo
 ```console
-argo submit --watch -n argo  https://raw.githubusercontent.com/geoinca/miniok/main/argo/hello-world10.yaml
+argo submit --watch -n argo  https://raw.githubusercontent.com/geoinca/miniok/main/argo/tfm-world10.yaml
 ```
 ## Webhook
 
@@ -230,6 +228,12 @@ kubectl apply -f /home/demo/k8/miniok/.bas/sp/wp/tfm-ngp-pvc.yaml -n test
 
 kubectl  port-forward service/nginx-service 8888:80 -n test
  <!-- Actual text -->
+
+## Git
+
+https://git-scm.com/docs/git-merge
+https://www.solucionex.com/blog/git-merge-o-git-rebase
+
 
 You can find me on [![Twitter][1.2]][1], or on [![LinkedIn][2.2]][2]
 <!-- Icons -->
