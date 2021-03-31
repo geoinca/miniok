@@ -235,6 +235,17 @@ https://git-scm.com/docs/git-merge
 https://www.solucionex.com/blog/git-merge-o-git-rebase
 
 
+#Git
+git clone  https://github.com/geoinca/laravel.git
+
+pwd
+minikube start  --memory 8192 --mount   --mount-string /home/demo/k8/laravel:/data
+
+git clone https://github.com/geoinca/DockerPHPTutorial.git
+
+git clone https://github.com/geoinca/miniok.git
+
+
 You can find me on [![Twitter][1.2]][1], or on [![LinkedIn][2.2]][2]
 <!-- Icons -->
 
