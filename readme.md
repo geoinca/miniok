@@ -3,8 +3,8 @@
 ```console
 minikube start   --container-runtime=docker  --v=10 --alsologtostderr --cpus 2 --memory 8192
 minikube start   --cpus 2 --memory 8192
-minikube start --vm-driver=hyperkit --memory 8192 --mount \
-               --mount-string /home/demo/k8/DockerPHPTutorial/src:/data
+minikube start  --memory 8192 --mount     --mount-string /home/demo/k8/laravel:/mnt/data
+--vm-driver=hyperkit
 
 minikube start
 minikube dashboard
@@ -29,9 +29,12 @@ helm install --namespace=argo argo-artifacts stable/minio --set service.type=Loa
 
 kubectl port-forward service/argo-artifacts -n argo 9000:9000
 ```
+cd minioartifacts
 ### Patch 
 ```console
+
 kubectl -n argo patch configmap/workflow-controller-configmap --patch "$(cat ./minio-modified-minio.yaml)"
+
 ```
 
 
@@ -103,9 +106,41 @@ curl -X POST -H "Content-Type: application/json"   -d '{"message":"this is my fi
 curl -X POST -H "Content-Type: application/json"   -d '{"message":"this is my first webhook"}'  http://localhost:16000/example
 
 ```
+## Deploy Laravel 
+```console
+git clone https://github.com/geoinca/DockerPHPTutorial.git
 
+demo@u18a-2:~/k8/DockerPHPTutorial/kuberdev$ ls -al
+total 40
+drwxr-xr-x 2 demo demo 4096 Mar 31 19:14 .
+drwxr-xr-x 5 demo demo 4096 Mar 31 19:14 ..
+-rw-r--r-- 1 demo demo  180 Mar 31 19:14 dbserver-svc.yaml
+-rw-r--r-- 1 demo demo  194 Mar 31 19:14 dbserver-vc.yaml
+-rw-r--r-- 1 demo demo  960 Mar 31 19:14 dbserver.yaml
+-rw-r--r-- 1 demo demo  697 Mar 31 19:14 phpmyadmin-deploy.yaml
+-rw-r--r-- 1 demo demo  179 Mar 31 19:14 phpmyadmin-service.yaml
+-rw-r--r-- 1 demo demo  118 Mar 31 19:14 tfmsecretwords.yaml
+-rw-r--r-- 1 demo demo  184 Mar 31 19:14 webserver-svc.yaml
+-rw-r--r-- 1 demo demo  555 Mar 31 19:14 webserver.yaml
+demo@u18a-2:~/k8/DockerPHPTutorial/kuberdev$ kubectl apply -n argo -f dbserver-svc.yaml
+service/mysql8-service created
+demo@u18a-2:~/k8/DockerPHPTutorial/kuberdev$ kubectl apply -n argo -f dbserver-vc.yaml
+persistentvolumeclaim/mysql-pv-claim created
+demo@u18a-2:~/k8/DockerPHPTutorial/kuberdev$ kubectl apply -n argo -f  dbserver.yaml
+deployment.apps/mysql configured
+demo@u18a-2:~/k8/DockerPHPTutorial/kuberdev$ kubectl apply -n argo -f tfmsecretwords.yaml
+secret/mysql-secrets created
+demo@u18a-2:~/k8/DockerPHPTutorial/kuberdev$ kubectl apply -n argo -f phpmyadmin-deploy.yaml
+deployment.apps/phpmyadmin-deployment created
+demo@u18a-2:~/k8/DockerPHPTutorial/kuberdev$ kubectl apply -n argo -f phpmyadmin-service.yaml
+service/phpmyadmin-service created
+demo@u18a-2:~/k8/DockerPHPTutorial/kuberdev$ kubectl apply -n argo -f webserver-svc.yaml
+service/web-service created
+demo@u18a-2:~/k8/DockerPHPTutorial/kuberdev$ kubectl apply -n argo -f webserver.yaml
+deployment.apps/webserver created
+demo@u18a-2:~/k8/DockerPHPTutorial/kuberdev$
 
-
+```
 
 
 
@@ -155,6 +190,18 @@ sensor
 ```console
 https://raw.githubusercontent.com/geoinca/miniok/main/argoevents/webhook/a001b-event-sensor.yaml
 ```
+
+### TFM sample
+```console
+
+demo@u18a-2:~/k8/argo-events-demo$ kubectl apply -n argo-events -f https://raw.githubusercontent.com/geoinca/argo-events-demo/master/s1_00_event-sources.yaml
+eventsource.argoproj.io/webhook created
+demo@u18a-2:~/k8/argo-events-demo$ kubectl apply -n argo-events -f  https://raw.githubusercontent.com/geoinca/argo-events-demo/master/s1_04_sensor.yaml
+sensor.argoproj.io/webhook4 created
+demo@u18a-2:~/k8/argo-events-demo$
+
+```
+
 ## Minio
 
 event-sources
@@ -244,6 +291,8 @@ minikube start  --memory 8192 --mount   --mount-string /home/demo/k8/laravel:/da
 git clone https://github.com/geoinca/DockerPHPTutorial.git
 
 git clone https://github.com/geoinca/miniok.git
+
+https://github.com/geoinca/argo-events-demo.git
 
 
 You can find me on [![Twitter][1.2]][1], or on [![LinkedIn][2.2]][2]
