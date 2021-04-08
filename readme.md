@@ -1,9 +1,14 @@
 # minikube
 
+https://kubernetes.io/blog/2019/03/28/running-kubernetes-locally-on-linux-with-minikube-now-with-kubernetes-1.14-support/
+
 ```console
-minikube start   --container-runtime=docker  --v=10 --alsologtostderr --cpus 2 --memory 8192
+minikube start  --vm-driver=hyperkit --container-runtime=docker  --v=10 --alsologtostderr --cpus 4 --memory 8192 --mount-string /home/demo/k8/laravel:/mnt/data
+
+minikube start  --vm-driver=kvm2 --container-runtime=docker  --v=10 --alsologtostderr --cpus 4 --memory 8192 --mount-string /home/demo/k8/laravel:/mnt/data
+
 minikube start   --cpus 2 --memory 8192
-minikube start  --memory 8192 --mount     --mount-string /home/demo/k8/laravel:/mnt/data
+minikube start  --memory 8192 --mount   --mount-string /home/demo/k8/laravel:/mnt/data
 --vm-driver=hyperkit
 
 minikube start
@@ -12,6 +17,9 @@ minikube dashboard
 ```
 
 # Argo
+
+https://github.com/argoproj/argo-workflows
+
 ```console
 kubectl create ns argo 
 
@@ -103,7 +111,7 @@ kubectl -n argo-events get eventsource
 
 curl -X POST -H "Content-Type: application/json"   -d '{"message":"this is my first webhook"}'  http://localhost:15000/devops-toolkit
 
-curl -X POST -H "Content-Type: application/json"   -d '{"message":"this is my first webhook"}'  http://localhost:16000/example
+curl -X POST -H "Content-Type: application/json"   -d '{"message":"this is my first webhook"}'  http://localhost:12000/example4
 
 ```
 ## Deploy Laravel 
