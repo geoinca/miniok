@@ -1,8 +1,43 @@
+# Xfce 4 is copyright Olivier Fourdan (fourdan@xfce.org). 
+https://es.joecomp.com/how-install-xrdp-server-ubuntu-18
+sudo apt-get install docker-ce=5:19.03.15~3-0~ubuntu-bionic docker-ce-cli=5:19.03.15~3-0~ubuntu-bionic containerd.io
+
+# docker
+http://www.linuxandubuntu.com/home/how-to-install-docker-on-ubuntu
+19.03
+
+sudo apt-get install docker-ce=5:19.03.15~3-0~ubuntu-bionic docker-ce-cli=5:19.03.15~3-0~ubuntu-bionic containerd.io 
+Permisos
+https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-18-04
+
+
 # minikube
+v1.16.0
+
+curl -LO https://storage.googleapis.com/minikube/releases/v1.16.0/minikube-linux-amd64 &&
+sudo install minikube-linux-amd64 /usr/local/bin/minikube
+
+
+
+ curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+ sudo install minikube-linux-amd64 /usr/local/bin/minikube
+
 
 https://kubernetes.io/blog/2019/03/28/running-kubernetes-locally-on-linux-with-minikube-now-with-kubernetes-1.14-support/
 
+curl -LO https://storage.googleapis.com/minikube/releases/v1.16.0/minikube-darwin-amd64
+minikube start --mount-string /Volumes/hd/TFM/laravel:/mnt/data
 ```console
+/mnt/vda1/data
+minikube start --vm-driver kvm2  --v=10 --alsologtostderr --cpus 4 --memory 10240 --mount --mount-string="/home/demo/k8/laravel:/mnt/data" 
+minikube version: v1.18.1
+minikube start --vm-driver kvm2 --mount --mount-string="/home/demo/k8/laravel:/mnt/data" --cpus 4 --memory 10240 --v=10
+ 
+minikube start --vm-driver kvm2 --vm-driver kvm2  --v=10 --alsologtostderr --cpus 4 --memory 10240 --mount-string /home/demo/k8/laravel:/mnt/data
+
+
+minikube start  --vm-driver=hyperkit --container-runtime=docker  --v=10 --alsologtostderr --cpus 4 --memory 8192 --mount-string /home/demo/k8/laravel:/mnt/data
+
 minikube start  --vm-driver=hyperkit --container-runtime=docker  --v=10 --alsologtostderr --cpus 4 --memory 8192 --mount-string /home/demo/k8/laravel:/mnt/data
 
 minikube start  --vm-driver=kvm2 --container-runtime=docker  --v=10 --alsologtostderr --cpus 4 --memory 8192 --mount-string /home/demo/k8/laravel:/mnt/data
@@ -11,14 +46,33 @@ minikube start   --cpus 2 --memory 8192
 minikube start  --memory 8192 --mount   --mount-string /home/demo/k8/laravel:/mnt/data
 --vm-driver=hyperkit
 
+curl -LO https://storage.googleapis.com/minikube/releases/latest/docker-machine-driver-hyperkit
+curl -LO https://github.com/kubernetes/minikube/releases/download/v1.16.0/docker-machine-driver-hyperkit
+
+https://cloudnative.mx/como-empezar-con-kubernetes-usando-minikube/
+
+
+wget https://github.com/kubernetes/minikube/releases/download/v1.16.0/minikube-linux-amd64
+
+
 minikube start
 minikube dashboard
 
 ```
 
+    ▪ User ID:      docker
+    ▪ Group ID:     docker
+    ▪ Version:      9p2000.L
+    ▪ Message Size: 262144
+    ▪ Permissions:  755 (-rwxr-xr-x)
+    ▪ Options:      map[]
+    ▪ Bind Address: 192.168.39.1:41065
+🚀  Userspace file server: ufs starting
+
 # Argo
 
 https://github.com/argoproj/argo-workflows
+https://iamstoxe.com/posts/argo-getting-started/
 
 ```console
 kubectl create ns argo 
@@ -301,6 +355,14 @@ git clone https://github.com/geoinca/DockerPHPTutorial.git
 git clone https://github.com/geoinca/miniok.git
 
 https://github.com/geoinca/argo-events-demo.git
+
+
+
+www
+composer update 
+docker run --rm -v $(pwd):/app composer install
+
+php artisan route:list
 
 
 You can find me on [![Twitter][1.2]][1], or on [![LinkedIn][2.2]][2]
