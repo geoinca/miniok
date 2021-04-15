@@ -15,7 +15,7 @@ from botocore.client import Config
 def ls(ruta = getcwd()):
     return [abspath(arch.path) for arch in scandir(ruta) if arch.is_file()]
 
-def check(s3AccessKey,s3SecretAccessKey,s3EndPointUrl,s3Bucket,s3BucketOut):
+def check(s3AccessKey,s3SecretAccessKey,s3EndPointUrl,s3Bucket,s3BucketOut,s3OutFileName):
 
   s3 = boto3.resource('s3',
                       endpoint_url=s3EndPointUrl,
@@ -54,7 +54,7 @@ def check(s3AccessKey,s3SecretAccessKey,s3EndPointUrl,s3Bucket,s3BucketOut):
   #cv2_imshow(img)
 
 
-  # Creating two regions of interest
+  # Creating two regions of interests3OutFileName
   roi_gray=gray[y:(y+h), x:(x+w)]
   roi_color=img[y:(y+h), x:(x+w)]
 
@@ -130,7 +130,7 @@ def check(s3AccessKey,s3SecretAccessKey,s3EndPointUrl,s3Bucket,s3BucketOut):
   cv2.imwrite(imgResult, rotated)
 
 
-  s3.Bucket(s3BucketOut).upload_file(imgResult,'imgresult0000.jpeg')
+  s3.Bucket(s3BucketOut).upload_file(imgResult,s3OutFileName)
 
 
 if __name__ == '__main__':
@@ -140,7 +140,8 @@ if __name__ == '__main__':
         s3EndPointUrl= sys.argv[3]
         s3Bucket= sys.argv[4]
         s3BucketOut= sys.argv[5]
-        check(s3AccesKey,s3SecretKey,s3EndPointUrl,s3Bucket,s3BucketOut)
+        s3OutFileName= sys.argv[6]
+        check(s3AccesKey,s3SecretKey,s3EndPointUrl,s3Bucket,s3BucketOut,s3OutFileName)
     else:
         print (0)
 
@@ -149,3 +150,4 @@ s3SecretKey = 'HbO5COQOXR6z3P0jgTVCBzWxkXFPXKsMqoItRzL6'
 s3EndPointUrl = 'http://argo-artifacts:9000'
 s3Bucket='infolder'
 s3BucketOut='outfolder'
+s3OutFileName="imgresult0000.jpeg"
