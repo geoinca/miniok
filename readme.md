@@ -20,6 +20,28 @@ kubectl apply -n argo -f https://raw.githubusercontent.com/argoproj/argo/stable/
 kubectl create rolebinding default-admin --clusterrole=admin --serviceaccount=argo:default --namespace=argo
 
 kubectl -n argo port-forward deployment/argo-server 2746:2746 &&
+
+
+```
+
+modify >>     - argo >>         - server >>             - argo-server >>                - edit
+
+```console
+spec:
+  ports:
+    - name: web
+      protocol: TCP
+      port: 2746
+      targetPort: 2746
+      nodePort: 31477
+  selector:
+    app: argo-server
+  clusterIP: 10.98.28.218
+  clusterIPs:
+    - 10.98.28.218
+  type: LoadBalancer
+  sessionAffinity: None
+  externalTrafficPolicy: Cluster
 ```
 *****
 
