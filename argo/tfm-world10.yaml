@@ -10,7 +10,11 @@ spec:
       secretName: argo-artifacts
   - name: tfm-secret-vol
     secret:
-      secretName: tfm-secret       
+      secretName: tfm-secret
+  arguments:
+    parameters:
+    - name: filename
+      value: outfilename            
   templates:
   - name: tfm
     steps:
@@ -35,7 +39,7 @@ spec:
     container:
       image: geoincaks/pythonimg:0.1.5  
       command: [sh, -c]
-      args: [ python3 00countobj.py 'AKIAIOSFODNN7EXAMPLE' 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'  'http://argo-artifacts.argo:9000' 'infolder'  ]
+      args: [ python3 00countobj.py $MYACCESSKEY $MYSECRETKEY $MYARGOENDPOINT 'infolder'  ]
       env:
       - name: MYACCESSKEY
         valueFrom:
@@ -90,14 +94,66 @@ spec:
         mountPath: "/tfm-secret/mountpath"  
   - name: faceAlignment
     container:
-      image: geoincaks/pythonfacealignment:0.1.6
+      image: geoincaks/pythonfacealignment:0.1.9
       command: [sh, -c]
-      args: [python3 01facealignment.py 'AKIAIOSFODNN7EXAMPLE' 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'  'http://argo-artifacts.argo:9000' 'infolder' 'outfolder']
+      args: ["python3 01facealignment.py $MYACCESSKEY $MYSECRETKEY  $MYARGOENDPOINT 'infolder' 'outfolder' {{workflow.parameters.filename}}"]
+      env:
+      - name: MYACCESSKEY
+        valueFrom:
+          secretKeyRef:
+            name: argo-artifacts
+            key: accesskey
+      - name: MYSECRETKEY
+        valueFrom:
+          secretKeyRef:
+            name: argo-artifacts
+            key: secretkey
+      - name: MYARGOENDPOINT
+        valueFrom:
+          secretKeyRef:
+            name: tfm-secret
+            key: minioendpoint              
+      volumeMounts:
+      - name: argo-artifacts-vol
+        mountPath: "/app/argo-artifacts/mountpath"
+      - name: tfm-secret-vol
+        mountPath: "/app/tfm-secret/mountpath"       
   - name: warpImages
     container:
       image: geoincaks/pythonwarpimg:0.1.2
       command: [sh, -c]
-      args: [python3 02warp2img.py 'AKIAIOSFODNN7EXAMPLE' 'wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY'  'http://argo-artifacts.argo:9000' 'infolder' 'outfolder']      
+      args: [python3 02warp2img.py $MYACCESSKEY $MYSECRETKEY  $MYARGOENDPOINT 'infolder' 'outfolder']
+      env:
+      - name: MYACCESSKEY
+        valueFrom:
+          secretKeyRef:
+            name: argo-artifacts
+            key: accesskey
+      - name: MYSECRETKEY
+        valueFrom:
+          secretKeyRef:
+            name: argo-artifacts
+            key: secretkey      
+      - name: MYTOKENKEY
+        valueFrom:
+          secretKeyRef:
+            name: tfm-secret 
+            key: tokenkey
+      - name: MYARGOENDPOINT
+        valueFrom:
+          secretKeyRef:
+            name: tfm-secret
+            key: minioendpoint          
+      - name: MYSIGNINGSECRET
+        valueFrom:
+          secretKeyRef:
+            name: tfm-secret 
+            key: signingSecret                        
+      volumeMounts:
+      - name: argo-artifacts-vol
+        mountPath: "/app/argo-artifacts/mountpath"
+      - name: tfm-secret-vol
+        mountPath: "/app/tfm-secret/mountpath"               
   - name: panorama
     container:
       image: alpine:3.6
@@ -119,6 +175,11 @@ spec:
           secretKeyRef:
             name: tfm-secret 
             key: tokenkey
+      - name: MYARGOENDPOINT
+        valueFrom:
+          secretKeyRef:
+            name: tfm-secret
+            key: minioendpoint          
       - name: MYSIGNINGSECRET
         valueFrom:
           secretKeyRef:
