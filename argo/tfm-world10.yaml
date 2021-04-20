@@ -14,7 +14,7 @@ spec:
   arguments:
     parameters:
     - name: filename
-      value: outfilename            
+      value: outfilename.jpg            
   templates:
   - name: tfm
     steps:

@@ -13,7 +13,7 @@ from botocore.client import Config
 def ls(ruta = getcwd()):
     return [abspath(arch.path) for arch in scandir(ruta) if arch.is_file()]
 
-def check(s3AccessKey,s3SecretAccessKey,s3EndPointUrl,s3Bucket,s3BucketOut):
+def check(s3AccessKey,s3SecretAccessKey,s3EndPointUrl,s3Bucket,s3BucketOut,s3OutFileName):
     s3 = boto3.resource('s3',
                         endpoint_url=s3EndPointUrl,
                         aws_access_key_id=s3AccessKey,
@@ -47,7 +47,7 @@ def check(s3AccessKey,s3SecretAccessKey,s3EndPointUrl,s3Bucket,s3BucketOut):
     imgResult=mnt_loc+"imgpano.jpeg"
     cv2.imwrite(imgResult, pano)
 
-    s3.Bucket(s3BucketOut).upload_file(imgResult,'imgpano.jpeg')
+    s3.Bucket(s3BucketOut).upload_file(imgResult,s3OutFileName)
 
 if __name__ == '__main__':
     if len(sys.argv) != 4:
@@ -56,9 +56,16 @@ if __name__ == '__main__':
         s3EndPointUrl= sys.argv[3]
         s3Bucket= sys.argv[4]
         s3BucketOut= sys.argv[5]
-        check(s3AccesKey,s3SecretKey,s3EndPointUrl,s3Bucket,s3BucketOut)
+        s3OutFileName= sys.argv[6]
+        check(s3AccesKey,s3SecretKey,s3EndPointUrl,s3Bucket,s3BucketOut,s3OutFileName)
     else:
         print (0)
 
 
  
+s3AccesKey = 'tfq0M5o1QtNOJcP1nizr'
+s3SecretKey = 'HbO5COQOXR6z3P0jgTVCBzWxkXFPXKsMqoItRzL6'
+s3EndPointUrl = 'http://argo-artifacts:9000'
+s3Bucket='infolder'
+s3BucketOut='outfolder'
+s3OutFileName="pano0000.jpeg"

@@ -1,0 +1,14 @@
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: webhookvf
+spec:
+  service:
+    ports:
+      - port: 12021
+        targetPort: 12021
+  webhookvf:
+    devops-toolkit:
+      port: "12021"
+      endpoint: /devops-toolkit
+      method: POST

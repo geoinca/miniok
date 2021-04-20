@@ -1,0 +1,49 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Sensor
+metadata:
+  name: webhook3
+spec:
+  template:
+    serviceAccountName: argo-events-sa
+  dependencies:
+    - name: test-dep
+      eventSourceName: webhook
+      eventName: example3
+  triggers:
+    - template:
+        name: webhook-workflow-trigger
+        k8s:
+          group: argoproj.io
+          version: v1alpha1
+          resource: workflows
+          operation: create
+          source:
+            resource:
+              apiVersion: argoproj.io/v1alpha1
+              kind: Workflow
+              metadata:
+                generateName: arguments-artifacts-
+              spec:
+                entrypoint: kubectl-input-artifact
+                arguments:
+                  artifacts:
+                  - name: kubectl
+                    http:
+                      url: https://storage.googleapis.com/kubernetes-release/release/v1.8.0/bin/linux/amd64/kubectl
+
+                templates:
+                - name: kubectl-input-artifact
+                  inputs:
+                    artifacts:
+                    - name: kubectl
+                      path: /usr/local/bin/kubectl
+                      mode: 0755
+                  container:
+                    image: debian:9.4
+                    command: [sh, -c]
+                    args: ["kubectl version"]
+          parameters:
+            - src:
+                dependencyName: test-dep
+                dataKey: body.message
+              dest: spec.containers.0.args.1

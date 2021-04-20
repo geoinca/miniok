@@ -181,7 +181,8 @@ kubectl  -n argo-events  get services
 
 kubectl -n argo-events port-forward service/slack-eventsource-svc 12000:12000
 
-kubectl -n argo-events port-forward service/webhook-eventsource-svc 16000:16000
+
+kubectl -n argo-events port-forward service/webhook-eventsource-svc 12000:12000
 
 kubectl -n argo-events get eventsource
 
@@ -386,7 +387,30 @@ docker run --rm -v $(pwd):/app composer install
 
 php artisan route:list
 
+## build Docker Image
 
+IMAGE 00
+```console
+docker build -t geoincaks/pythonimg:0.1.x -f Dockerfile00CountObj .
+docker push geoincaks/pythonimg:0.1.x
+```
+
+IMAGE 01
+```console
+docker build -t geoincaks/pythonfacealignment:0.1.x -f Dockerfile01FaceAlignment .
+docker push geoincaks/pythonfacealignment:0.1.x
+```
+IMAGE 02
+```console
+docker build -t geoincaks/pythonwarpimg:0.1.3 -f Dockerfile02WarpImg .
+docker push geoincaks/pythonwarpimg:0.1.x
+```
+
+IMAGE 04
+```console
+docker build -t geoincaks/pythonpanorama:0.1.x -f Dockerfile04Panorama .
+docker push geoincaks/pythonpanorama:0.1.x
+```
 You can find me on [![Twitter][1.2]][1], or on [![LinkedIn][2.2]][2]
 <!-- Icons -->
 
