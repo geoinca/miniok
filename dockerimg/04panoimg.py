@@ -13,7 +13,7 @@ from botocore.client import Config
 def ls(ruta = getcwd()):
     return [abspath(arch.path) for arch in scandir(ruta) if arch.is_file()]
 
-def check(s3AccessKey,s3SecretAccessKey,s3EndPointUrl,s3Bucket,s3BucketOut,s3OutFileName):
+def check(s3AccessKey,s3SecretAccessKey,s3EndPointUrl,s3Bucket,s3BucketOut,s3OutFileName,s3Prefix):
     s3 = boto3.resource('s3',
                         endpoint_url=s3EndPointUrl,
                         aws_access_key_id=s3AccessKey,
@@ -24,11 +24,9 @@ def check(s3AccessKey,s3SecretAccessKey,s3EndPointUrl,s3Bucket,s3BucketOut,s3Out
     mnt_loc = os.getcwd()+"/tmp/"
     my_bucket = s3.Bucket(s3Bucket)
     s3_files = []
-    for object in my_bucket.objects.all():
-        s3_files.append(object)
-
-    for elem in s3_files:
-        s3.Bucket(elem.bucket_name).download_file(elem.key, mnt_loc + elem.key)
+    for object in my_bucket.objects.filter(Prefix=s3Prefix):
+        path, filename = os.path.split(object.key)
+        my_bucket.download_file(object.key, mnt_loc +filename)
 
     imgWarp=ls(mnt_loc)
 
@@ -46,18 +44,32 @@ def check(s3AccessKey,s3SecretAccessKey,s3EndPointUrl,s3Bucket,s3BucketOut,s3Out
 
     imgResult=mnt_loc+"imgpano.jpeg"
     cv2.imwrite(imgResult, pano)
+    imgout=s3Prefix + s3OutFileName
+    s3.Bucket(s3BucketOut).upload_file(imgResult,imgout)
 
-    s3.Bucket(s3BucketOut).upload_file(imgResult,s3OutFileName)
+    s3.Bucket(s3BucketOut).upload_file(imgResult,imgout)
+    s3_client = boto3.client('s3',
+                        endpoint_url=s3EndPointUrl,
+                        aws_access_key_id=s3AccessKey,
+                        aws_secret_access_key=s3SecretKey,
+                        config=Config(signature_version='s3v4'),
+                        region_name='us-east-1')
+    response = s3_client.list_objects_v2(Bucket=s3Bucket, Prefix=s3Prefix)
+
+    for object in response['Contents']:
+        print('Deleting', object['Key'])
+        s3_client.delete_object(Bucket=s3Bucket, Key=object['Key'])    
 
 if __name__ == '__main__':
     if len(sys.argv) != 4:
-        s3AccesKey = sys.argv[1]
+        s3AccessKey = sys.argv[1]
         s3SecretKey = sys.argv[2]
         s3EndPointUrl= sys.argv[3]
         s3Bucket= sys.argv[4]
         s3BucketOut= sys.argv[5]
         s3OutFileName= sys.argv[6]
-        check(s3AccesKey,s3SecretKey,s3EndPointUrl,s3Bucket,s3BucketOut,s3OutFileName)
+        s3Prefix= sys.argv[7]
+        check(s3AccessKey,s3SecretKey,s3EndPointUrl,s3Bucket,s3BucketOut,s3OutFileName,s3Prefix)
     else:
         print (0)
 

@@ -60,7 +60,7 @@ spec:
                 # Return doNothing, bgr2Gray, warpImages, panorama based on a number of items in the bucket alpine:3.6 geoincaks/pythonimg:0.1.5 python3 00countobj.py
                 - name: tfm-coin
                   container:
-                    image: geoincaks/pythonimg:0.1.7  
+                    image: geoincaks/pythonimg:0.2.1  
                     command: [sh, -c]
                     args: [ "python3 00countobj.py $MYACCESSKEY $MYSECRETKEY  $MYARGOENDPOINT 'infolder'  'outfolder' '{{workflow.parameters.filename}}' '{{workflow.parameters.s3prefix}}'" ]
                     env:
@@ -86,7 +86,7 @@ spec:
                       mountPath: "/app/tfm-secret/mountpath"              
                 - name: doNothing
                   container:
-                    image: geoincaks/pythonimg:0.1.7
+                    image: geoincaks/pythonimg:0.2.1
                     command: [sh, -c]
                     args: ["python3 00countobj.py $MYACCESSKEY $MYSECRETKEY  $MYARGOENDPOINT 'infolder'  'outfolder' '{{workflow.parameters.filename}}' '{{workflow.parameters.s3prefix}}'"]      
                     env:
@@ -117,7 +117,7 @@ spec:
                       mountPath: "/tfm-secret/mountpath"  
                 - name: faceAlignment                
                   container:
-                    image: geoincaks/pythonfacealignment:0.1.14
+                    image: geoincaks/pythonfacealignment:0.2.0
                     command: [sh, -c]
                     args: ["python3 01facealignment.py $MYACCESSKEY $MYSECRETKEY  $MYARGOENDPOINT 'infolder'  'outfolder' '{{workflow.parameters.filename}}' '{{workflow.parameters.s3prefix}}'"]
                     env:
@@ -143,7 +143,7 @@ spec:
                       mountPath: "/app/tfm-secret/mountpath"    
                 - name: warpImages
                   container:
-                    image: geoincaks/pythonwarpimg:0.1.7
+                    image: geoincaks/pythonwarpimg:0.2.0
                     command: [sh, -c]
                     args: ["python3 02warp2img.py $MYACCESSKEY $MYSECRETKEY  $MYARGOENDPOINT 'infolder'  'outfolder' '{{workflow.parameters.filename}}' '{{workflow.parameters.s3prefix}}'"]      
                     env:
@@ -169,7 +169,7 @@ spec:
                       mountPath: "/app/tfm-secret/mountpath"   
                 - name: panorama
                   container:
-                    image: geoincaks/pythonpanorama:0.1.1
+                    image: geoincaks/pythonpanorama:0.1.2
                     command: [sh, -c]
                     args: ["python3 04panoimg.py $MYACCESSKEY $MYSECRETKEY  $MYARGOENDPOINT 'infolder'  'outfolder' '{{workflow.parameters.filename}}' '{{workflow.parameters.s3prefix}}'"] 
                     env:

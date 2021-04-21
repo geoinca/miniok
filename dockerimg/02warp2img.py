@@ -61,7 +61,7 @@ def warpImages(img1, img2, H):
 
   return output_img
 
-def check(s3AccessKey,s3SecretAccessKey,s3EndPointUrl,s3Bucket,s3BucketOut,s3OutFileName,s3Prefix):
+def check(s3AccessKey,s3SecretKey,s3EndPointUrl,s3Bucket,s3BucketOut,s3OutFileName,s3Prefix):
 
   s3 = boto3.resource('s3',
                       endpoint_url=s3EndPointUrl,
