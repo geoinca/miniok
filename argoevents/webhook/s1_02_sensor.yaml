@@ -11,37 +11,19 @@ spec:
       eventName: example2
   triggers:
     - template:
-        name: webhook-workflow-trigger
-        k8s:
-          group: argoproj.io
-          version: v1alpha1
-          resource: workflows
-          operation: create
-          source:
-            resource:
-              apiVersion: argoproj.io/v1alpha1
-              kind: Workflow
-              metadata:
-                generateName: webhook2-
-              spec:
-                entrypoint: whalesay
-                arguments:
-                  parameters:
-                  - name: message
-                    # the value will get overridden by event payload from test-dep
-                    value: hello world
-                templates:
-                - name: whalesay
-                  serviceAccountName: argo-events-sa
-                  inputs:
-                    parameters:
-                    - name: message
-                  container:
-                    image: docker/whalesay:latest
-                    command: [cowsay]
-                    args: ["asdf: ","{{inputs.parameters.message}}"]
-          parameters:
-            - src:
-                dependencyName: test-dep
-                dataKey: body.message
-              dest: spec.containers.0.args.1
+        name: slack-trigger
+        slack:
+          channel: general
+          message: hello world
+          slackToken:
+            key: token
+            name: slack-secret
+      parameters:
+        - src:
+            dependencyName: test-dep
+            dataKey: body.channel
+          dest: slack.channel
+        - src:
+            dependencyName: test-dep
+            dataKey: body.message
+          dest: slack.message

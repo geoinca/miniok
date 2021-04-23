@@ -190,6 +190,18 @@ curl -X POST -H "Content-Type: application/json"   -d '{"message":"this is my fi
 
 curl -X POST -H "Content-Type: application/json"   -d '{"message":"this is my first webhook"}'  http://localhost:12000/example4
 
+curl -d '{"channel":"tfm","message":"test message"}' -H "Content-Type: application/json" -X POST http://localhost:12000/example2
+
+curl -X POST -H 'Authorization: Bearer xoxb-xxx-xxx-xxx' \
+-H 'Content-type: application/json' \
+--data '{"channel":"tfm","text":"I hope the tour went well, Mr. Wonka.","attachments": [{"text":"Who wins the lifetime supply of chocolate?","fallback":"You could be telling the computer exactly what it can do with a lifetime supply of chocolate.","color":"#3AA3E3","attachment_type":"default","callback_id":"select_simple_1234","actions":[{"name":"winners_list","text":"Who should win?","type":"select","data_source":"users"}]}]}' \
+https://slack.com/api/chat.postMessage
+
+curl -X POST -H 'Authorization: Bearer xoxb-xxxx-xxxxx-xxxxx' \
+-H 'Content-type: application/json' \
+--data '{"channel":"tfm","text":"test message"}' \
+https://slack.com/api/chat.postMessage
+
 ```
 ## Deploy Laravel 
 ```console
@@ -391,25 +403,25 @@ php artisan route:list
 
 IMAGE 00
 ```console
-docker build -t geoincaks/pythonimg:0.1.x -f Dockerfile00CountObj .
-docker push geoincaks/pythonimg:0.1.x
+docker build -t geoincaks/pythonimg:0.2.1 -f Dockerfile00CountObj .
+docker push geoincaks/pythonimg:0.2.1
 ```
 
 IMAGE 01
 ```console
-docker build -t geoincaks/pythonfacealignment:0.1.x -f Dockerfile01FaceAlignment .
-docker push geoincaks/pythonfacealignment:0.1.x
+docker build -t geoincaks/pythonfacealignment:0.2.0 -f Dockerfile01FaceAlignment .
+docker push geoincaks/pythonfacealignment:0.2.0
 ```
 IMAGE 02
 ```console
-docker build -t geoincaks/pythonwarpimg:0.1.3 -f Dockerfile02WarpImg .
-docker push geoincaks/pythonwarpimg:0.1.x
+docker build -t geoincaks/pythonwarpimg:0.2.0 -f Dockerfile02WarpImg .
+docker push geoincaks/pythonwarpimg:0.2.0
 ```
 
 IMAGE 04
 ```console
-docker build -t geoincaks/pythonpanorama:0.1.x -f Dockerfile04Panorama .
-docker push geoincaks/pythonpanorama:0.1.x
+docker build -t geoincaks/pythonpanorama:0.1.2 -f Dockerfile04Panorama .
+docker push geoincaks/pythonpanorama:0.1.2
 ```
 You can find me on [![Twitter][1.2]][1], or on [![LinkedIn][2.2]][2]
 <!-- Icons -->
