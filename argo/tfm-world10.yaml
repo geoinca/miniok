@@ -16,13 +16,18 @@ spec:
     - name: filename
       value: outfilename.jpg
     - name: s3prefix
-      value: "id1/"                   
+      value: "id1/"
+    - name: process
+      value: "doNotning"                   
   templates:
   - name: tfm
+    inputs:
+      parameters:
+      - name: process
     steps:
     # tfm a coin
     - - name: tfm-coin
-        template: tfm-coin
+        template: tfm-coin  
     # evaluate the result in parallel
     - - name: doNothing
         template: doNothing                 # call donothing template if "donothing "
@@ -35,13 +40,16 @@ spec:
         when: "{{steps.tfm-coin.outputs.result}} == 2"        
       - name: panorama
         template: panorama                 # call PANORAMA template if "PANORAMA"
-        when: "{{steps.tfm-coin.outputs.result}} > 2"        
+        when: "{{steps.tfm-coin.outputs.result}} > 2"
+    - - name: tfm-finished
+        template: tfm-finished # call tfm-finished template
+
   # Return doNothing, bgr2Gray, warpImages, panorama based on a number of items in the bucket alpine:3.6 geoincaks/pythonimg:0.1.5 python3 00countobj.py
-  - name: tfm-coin
+  - name: tfm-coin 
     container:
       image: geoincaks/pythonimg:0.2.1  
       command: [sh, -c]
-      args: [ "python3 00countobj.py $MYACCESSKEY $MYSECRETKEY  $MYARGOENDPOINT 'infolder'  'outfolder' '{{workflow.parameters.filename}}' '{{workflow.parameters.s3prefix}}'"  ]
+      args: [ "python3 00countobj.py $MYACCESSKEY $MYSECRETKEY  $MYARGOENDPOINT 'infolder'  'outfolder' '{{workflow.parameters.filename}}' '{{workflow.parameters.s3prefix}}' {{tfm-coin.outputs.result}}"  ]
       env:
       - name: MYACCESSKEY
         valueFrom:
@@ -62,12 +70,16 @@ spec:
       - name: argo-artifacts-vol
         mountPath: "/app/argo-artifacts/mountpath"
       - name: tfm-secret-vol
-        mountPath: "/app/tfm-secret/mountpath"              
+        mountPath: "/app/tfm-secret/mountpath"   
+    outputs:
+      parameters:
+      - name: task-param
+        value: "task-output-parameter"                   
   - name: doNothing
     container:
       image: geoincaks/pythonimg:0.2.1
       command: [sh, -c]
-      args: ["python3 00countobj.py $MYACCESSKEY $MYSECRETKEY  $MYARGOENDPOINT 'infolder'  'outfolder' '{{workflow.parameters.filename}}' '{{workflow.parameters.s3prefix}}'" ]      
+      args: ["python3 00countobj.py $MYACCESSKEY $MYSECRETKEY  $MYARGOENDPOINT 'infolder'  'outfolder' '{{workflow.parameters.filename}}' '{{workflow.parameters.s3prefix}}' {{tfm-coin.outputs.result}}" ]      
       env:
       - name: MYACCESSKEY
         valueFrom:
@@ -78,7 +90,12 @@ spec:
         valueFrom:
           secretKeyRef:
             name: argo-artifacts
-            key: secretkey      
+            key: secretkey
+      - name: MYARGOENDPOINT
+        valueFrom:
+          secretKeyRef:
+            name: tfm-secret
+            key: minioendpoint                   
       - name: MYTOKENKEY
         valueFrom:
           secretKeyRef:
@@ -119,7 +136,11 @@ spec:
       - name: argo-artifacts-vol
         mountPath: "/app/argo-artifacts/mountpath"
       - name: tfm-secret-vol
-        mountPath: "/app/tfm-secret/mountpath"       
+        mountPath: "/app/tfm-secret/mountpath"
+    outputs:
+      parameters:
+      - name: process-output
+        value: "faceAlignment"           
   - name: warpImages
     container:
       image: geoincaks/pythonwarpimg:0.2.0
@@ -191,4 +212,11 @@ spec:
       - name: argo-artifacts-vol
         mountPath: "/app/argo-artifacts/mountpath"
       - name: tfm-secret-vol
-        mountPath: "/app/tfm-secret/mountpath"              
+        mountPath: "/app/tfm-secret/mountpath"
+  - name: tfm-finished
+    container: 
+      image: geoincaks/ubuntutest:0.1.3
+      command: [sh, -c]
+      args: ["curl -X POST -H 'Authorization: Bearer xoxb-1809541606629-1827765687457-ODSLHFWykFionecTuMbYNfXh' -H 'Content-type: application/json' --data '{\"channel\":\"tfm\",\"text\":\"test linix: {{tfm-coin.outputs.result}}\"}' https://slack.com/api/chat.postMessage"]
+    arguments:
+      parameters: [{name: text, value: "{{tfm-coin.outputs.result}}"}]  

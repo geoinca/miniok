@@ -73,11 +73,32 @@ minikube dashboard
 
 https://github.com/argoproj/argo-workflows
 https://iamstoxe.com/posts/argo-getting-started/
+en este caso usaremos la v2.12.11 
+
+Installing the Argo Command Line Interface
+```console
+# Download the binary
+curl -sLO https://github.com/argoproj/argo/releases/download/v2.12.11/argo-linux-amd64.gz
+
+# Unzip
+gunzip argo-linux-amd64.gz
+
+# Make binary executable
+chmod +x argo-linux-amd64
+
+# Move binary to path
+mv ./argo-linux-amd64 /usr/local/bin/argo
+
+# Test installation
+argo version
+```
 
 ```console
 kubectl create ns argo 
 
 kubectl apply -n argo -f https://raw.githubusercontent.com/argoproj/argo/stable/manifests/install.yaml 
+
+kubectl apply -n argo -f https://raw.githubusercontent.com/argoproj/argo/v2.12.11/manifests/install.yaml
 
 kubectl create rolebinding default-admin --clusterrole=admin --serviceaccount=argo:default --namespace=argo
 
@@ -197,9 +218,9 @@ curl -X POST -H 'Authorization: Bearer xoxb-xxx-xxx-xxx' \
 --data '{"channel":"tfm","text":"I hope the tour went well, Mr. Wonka.","attachments": [{"text":"Who wins the lifetime supply of chocolate?","fallback":"You could be telling the computer exactly what it can do with a lifetime supply of chocolate.","color":"#3AA3E3","attachment_type":"default","callback_id":"select_simple_1234","actions":[{"name":"winners_list","text":"Who should win?","type":"select","data_source":"users"}]}]}' \
 https://slack.com/api/chat.postMessage
 
-curl -X POST -H 'Authorization: Bearer xoxb-xxxx-xxxxx-xxxxx' \
+curl -X POST -H 'Authorization: Bearer xoxb-xox-xox-xox' \
 -H 'Content-type: application/json' \
---data '{"channel":"tfm","text":"test message"}' \
+--data '{"channel":"tfm","text":"test linix"}' \
 https://slack.com/api/chat.postMessage
 
 ```
@@ -401,6 +422,8 @@ php artisan route:list
 
 ## build Docker Image
 
+docker run --rm  geoincaks/pythonimg:0.2.1 /bin/bash 
+docker build -t  geoincaks/ubuntutest:0.1.3 .
 IMAGE 00
 ```console
 docker build -t geoincaks/pythonimg:0.2.1 -f Dockerfile00CountObj .
