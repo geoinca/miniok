@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Sensor
 metadata:
-  name: webhook4a
+  name: webhook4tfm
 spec:
   template:
     serviceAccountName: argo-events-sa
@@ -56,11 +56,17 @@ spec:
                       when: "{{steps.tfm-coin.outputs.result}} == 2"        
                     - name: panorama
                       template: panorama                 # call PANORAMA template if "PANORAMA"
-                      when: "{{steps.tfm-coin.outputs.result}} > 2"        
+                      when: "{{steps.tfm-coin.outputs.result}} > 2"
+                  - - name: tfm-finished
+                      template: tfm-finished # call tfm-finished template
+                      arguments:
+                        parameters:
+                        - name: message
+                          value: "{{steps.tfm-coin.outputs.parameters.result}}"                              
                 # Return doNothing, bgr2Gray, warpImages, panorama based on a number of items in the bucket alpine:3.6 geoincaks/pythonimg:0.1.5 python3 00countobj.py
                 - name: tfm-coin
                   container:
-                    image: geoincaks/pythonimg:0.2.1  
+                    image: geoincaks/pythonimg:0.2.3 
                     command: [sh, -c]
                     args: [ "python3 00countobj.py $MYACCESSKEY $MYSECRETKEY  $MYARGOENDPOINT 'infolder'  'outfolder' '{{workflow.parameters.filename}}' '{{workflow.parameters.s3prefix}}'" ]
                     env:
@@ -83,7 +89,13 @@ spec:
                     - name: argo-artifacts-vol
                       mountPath: "/app/argo-artifacts/mountpath"
                     - name: tfm-secret-vol
-                      mountPath: "/app/tfm-secret/mountpath"              
+                      mountPath: "/app/tfm-secret/mountpath"
+                  outputs:
+                    parameters:
+                    - name: result
+                      valueFrom:
+                        default: "0"
+                        path: /tmp/tfmresult.txt                                    
                 - name: doNothing
                   container:
                     image: geoincaks/pythonimg:0.2.1
@@ -198,6 +210,14 @@ spec:
                       mountPath: "/app/argo-artifacts/mountpath"
                     - name: tfm-secret-vol
                       mountPath: "/app/tfm-secret/mountpath"              
+                - name: tfm-finished
+                  inputs:
+                    parameters:
+                    - name: message
+                  container: 
+                    image: docker/whalesay:latest #geoincaks/ubuntutest:0.1.3
+                    command: [cowsay] #[sh, -c]
+                    args: [" -X POST -H 'Authorization: Bearer xoxb-xxxxxx-xxxxxx-ODSLHFWykFionecTuMbYNfXh' -H 'Content-type: application/json' --data '{\"channel\":\"tfm\",\"text\":\"test linix: {{inputs.parameters.message}}\"}' https://slack.com/api/chat.postMessage"]
 
           parameters:
             - src:
