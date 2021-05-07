@@ -1,13 +1,13 @@
 apiVersion: argoproj.io/v1alpha1
 kind: EventSource
 metadata:
-  name: minio
+  name: miniotfm
 spec:
   minio:
-    example:
+    exampleput:
       bucket:
-        name: infolder
-      endpoint: argo-artifacts:9000
+        name: input
+      endpoint: argo-artifacts.argo:9000
       events:
         - s3:ObjectCreated:Put
       #  - s3:ObjectRemoved:Delete
@@ -18,3 +18,4 @@ spec:
       secretKey:
         key: secretkey
         name: argo-artifacts
+    
