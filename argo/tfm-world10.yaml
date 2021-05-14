@@ -16,9 +16,13 @@ spec:
     - name: filename
       value: outfilename.jpg
     - name: s3prefix
-      value: "id1/"
+      value: ""
     - name: process
-      value: "doNotning"                   
+      value: "doNotning" 
+    - name: inputfolfer
+      value: input
+    - name: outputfolfer
+      value: output                         
   templates:
   - name: tfm
     inputs:
@@ -53,7 +57,7 @@ spec:
     container:
       image: geoincaks/pythonimg:0.2.2  
       command: [sh, -c]
-      args: [ "python3 00countobj.py $MYACCESSKEY $MYSECRETKEY  $MYARGOENDPOINT 'infolder'  'outfolder' '{{workflow.parameters.filename}}' '{{workflow.parameters.s3prefix}}'"  ]
+      args: [ "python3 00countobj.py $MYACCESSKEY $MYSECRETKEY  $MYARGOENDPOINT '{{workflow.parameters.inputfolfer}}'  '{{workflow.parameters.outputfolfer}}' '{{workflow.parameters.filename}}' '{{workflow.parameters.s3prefix}}'"  ]
       env:
       - name: MYACCESSKEY
         valueFrom:
@@ -85,7 +89,7 @@ spec:
     container:
       image: geoincaks/pythonimg:0.2.1
       command: [sh, -c]
-      args: ["python3 00countobj.py $MYACCESSKEY $MYSECRETKEY  $MYARGOENDPOINT 'infolder'  'outfolder' '{{workflow.parameters.filename}}' '{{workflow.parameters.s3prefix}}' {{tfm-coin.outputs.result}}" ]      
+      args: ["python3 00countobj.py $MYACCESSKEY $MYSECRETKEY  $MYARGOENDPOINT '{{workflow.parameters.inputfolfer}}'  '{{workflow.parameters.outputfolfer}}' '{{workflow.parameters.filename}}' '{{workflow.parameters.s3prefix}}' {{tfm-coin.outputs.result}}" ]      
       env:
       - name: MYACCESSKEY
         valueFrom:
@@ -121,7 +125,7 @@ spec:
     container:
       image: geoincaks/pythonfacealignment:0.2.0
       command: [sh, -c]
-      args: ["python3 01facealignment.py $MYACCESSKEY $MYSECRETKEY  $MYARGOENDPOINT 'infolder'  'outfolder' '{{workflow.parameters.filename}}' '{{workflow.parameters.s3prefix}}'"]
+      args: ["python3 01facealignment.py $MYACCESSKEY $MYSECRETKEY  $MYARGOENDPOINT '{{workflow.parameters.inputfolfer}}'  '{{workflow.parameters.outputfolfer}}' '{{workflow.parameters.filename}}' '{{workflow.parameters.s3prefix}}'"]
       env:
       - name: MYACCESSKEY
         valueFrom:
@@ -187,7 +191,7 @@ spec:
     container:
       image: geoincaks/pythonpanorama:0.1.2
       command: [sh, -c]
-      args: ["python3 04panoimg.py $MYACCESSKEY $MYSECRETKEY  $MYARGOENDPOINT 'infolder'  'outfolder' '{{workflow.parameters.filename}}' '{{workflow.parameters.s3prefix}}'"] 
+      args: ["python3 04panoimg.py $MYACCESSKEY $MYSECRETKEY  $MYARGOENDPOINT '{{workflow.parameters.inputfolfer}}'  '{{workflow.parameters.outputfolfer}}' '{{workflow.parameters.filename}}' '{{workflow.parameters.s3prefix}}'"] 
       env:
       - name: MYACCESSKEY
         valueFrom:

@@ -1,0 +1,134 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: tfm-
+spec:
+  entrypoint: webhooktfm
+  arguments:
+    parameters:
+    - name: filename
+      value: outfilename.jpg
+    - name: s3prefix
+      value: ""
+    - name: inputfolfer
+      value: input
+    - name: outputfolfer
+      value: output
+  volumes:
+  - name: argo-artifacts-vol
+    secret:
+      secretName: argo-artifacts
+  - name: tfm-secret-vol
+    secret:
+      secretName: tfm-secret
+                  
+  templates:
+  - name: webhooktfm
+    steps:
+    # tfm a coin
+    - - name: tfm-coin
+        template: tfm-coin
+    # evaluate the result in parallel
+    - - name: cartoonimg
+        template: cartoonimg                 # call donothing template if "donothing "
+        when: "{{steps.tfm-coin.outputs.result}} == cartoonimg"
+      - name: faceAlignment
+        template: faceAlignment                 # call faceAlignment template if "faceAlignment"
+        when: "{{steps.tfm-coin.outputs.result}} == faceAlignment" 
+    - - name: tfm-finished
+        template: tfm-finished # call tfm-finished template
+        arguments:
+          parameters:
+          - name: message
+            value: "{{steps.tfm-coin.outputs.parameters.result}}" 
+    # return cartoonimg faceAlignment
+
+  # Return doNothing, bgr2Gray, warpImages, panorama based on a number of items in the bucket alpine:3.6 geoincaks/pythonimg:0.1.5 python3 00countobj.py
+  - name: tfm-coin 
+    script:
+      image: python:alpine3.6  
+      command: [python]
+      source: |
+        import random
+        result = "cartoonimg" if random.randint(0,1) == 0 else "faceAlignment"
+        print(result)  
+    outputs:
+      parameters:
+      - name: result
+        valueFrom:
+          default: "0"
+          path: /tmp/tfmresult.txt                   
+  - name: faceAlignment
+    container:
+      image: geoincaks/pythonfacealignment:0.2.0
+      command: [sh, -c]
+      args: ["python3 01facealignment.py $MYACCESSKEY $MYSECRETKEY  $MYARGOENDPOINT '{{workflow.parameters.inputfolfer}}' '{{workflow.parameters.outputfolfer}}' '{{workflow.name}}.jpg' '{{workflow.parameters.s3prefix}}'"]
+      env:
+      - name: MYACCESSKEY
+        valueFrom:
+          secretKeyRef:
+            name: argo-artifacts
+            key: accesskey
+      - name: MYSECRETKEY
+        valueFrom:
+          secretKeyRef:
+            name: argo-artifacts
+            key: secretkey
+      - name: MYARGOENDPOINT
+        valueFrom:
+          secretKeyRef:
+            name: tfm-secret
+            key: minioendpoint                   
+      - name: MYTOKENKEY
+        valueFrom:
+          secretKeyRef:
+            name: tfm-secret 
+            key: tokenkey
+      - name: MYSIGNINGSECRET
+        valueFrom:
+          secretKeyRef:
+            name: tfm-secret 
+            key: signingSecret                        
+      volumeMounts:
+      - name: argo-artifacts-vol
+        mountPath: "//mountpath"
+      - name: tfm-secret-vol
+        mountPath: "/tfm-secret/mountpath"  
+  - name: cartoonimg
+    container:
+      image: geoincaks/pythoncartoon:0.2.0
+      command: [sh, -c]
+      args: ["python3 10cartoonimg.py $MYACCESSKEY $MYSECRETKEY  $MYARGOENDPOINT '{{workflow.parameters.inputfolfer}}'  '{{workflow.parameters.outputfolfer}}' '{{workflow.name}}.jpg' '{{workflow.parameters.s3prefix}}'"]
+      env:
+      - name: MYACCESSKEY
+        valueFrom:
+          secretKeyRef:
+            name: argo-artifacts
+            key: accesskey
+      - name: MYSECRETKEY
+        valueFrom:
+          secretKeyRef:
+            name: argo-artifacts
+            key: secretkey
+      - name: MYARGOENDPOINT
+        valueFrom:
+          secretKeyRef:
+            name: tfm-secret
+            key: minioendpoint              
+      volumeMounts:
+      - name: argo-artifacts-vol
+        mountPath: "/app/argo-artifacts/mountpath"
+      - name: tfm-secret-vol
+        mountPath: "/app/tfm-secret/mountpath"
+    outputs:
+      parameters:
+      - name: process-output
+        value: "faceAlignment"           
+  - name: tfm-finished
+    inputs:
+      parameters:
+      - name: message
+    container: 
+      image: docker/whalesay:latest #geoincaks/ubuntutest:0.1.3
+      command: [cowsay] #[sh, -c]
+      args: [" -X POST -H 'Authorization: Bearer xoxb-xxxxxx-xxxxxx-ODSLHFWykFionecTuMbYNfXh' -H 'Content-type: application/json' --data '{\"channel\":\"tfm\",\"text\":\"test linix: {{inputs.parameters.message}} : {{workflow.name}}.jpg\"}' https://slack.com/api/chat.postMessage"]
