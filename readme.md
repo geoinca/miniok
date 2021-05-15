@@ -33,7 +33,7 @@ minikube start --mount-string /Volumes/hd/TFM/laravel:/mnt/data
 /home/demo/k8/laravel
 
 minikube start --vm-driver docker  --v=10 --alsologtostderr --cpus 4 --memory 10240 --mount --mount-string="/home/demo/k8/laravel:/mnt/data" 
-
+minikube start --vm-driver kvm2  --v=10 --alsologtostderr --cpus 4 --memory 10240 --mount --mount-string="/home/demo/k8/laravel:/mnt/data"  
 minikube version: v1.18.1 Linux
 minikube start --vm-driver docker --mount --mount-string="/home/demo/k8/laravel-kubernetes-helm/docker/laravel:/mnt/data" --cpus 4 --memory 10240 --v=10
  
