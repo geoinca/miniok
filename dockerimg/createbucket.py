@@ -12,9 +12,11 @@ s3 = boto3.resource('s3',
                     config=Config(signature_version='s3v4'),
                     region_name='us-east-1')
 
-#s3.create_bucket(Bucket='artifacts', CreateBucketConfiguration={'LocationConstraint': 'us-east-1'})
-#s3.create_bucket(Bucket='infolder', CreateBucketConfiguration={'LocationConstraint': 'us-east-1'})
-#s3.create_bucket(Bucket='outfolder', CreateBucketConfiguration={'LocationConstraint': 'us-east-1'})
+s3.create_bucket(Bucket='artifacts', CreateBucketConfiguration={'LocationConstraint': 'us-east-1'})
+s3.create_bucket(Bucket='infolder', CreateBucketConfiguration={'LocationConstraint': 'us-east-1'})
+s3.create_bucket(Bucket='outfolder', CreateBucketConfiguration={'LocationConstraint': 'us-east-1'})
+s3.create_bucket(Bucket='output', CreateBucketConfiguration={'LocationConstraint': 'us-east-1'})
+s3.create_bucket(Bucket='input', CreateBucketConfiguration={'LocationConstraint': 'us-east-1'})
 s3.create_bucket(Bucket='results', CreateBucketConfiguration={'LocationConstraint': 'us-east-1'})
 
 my_bucket = s3.Bucket(s3Bucket)

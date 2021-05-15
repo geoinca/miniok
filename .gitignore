@@ -60,3 +60,4 @@ GitHub.sublime-settings
 P/tmp/*
 pythonimg/*.ipynb
 pythonimg/.ipynb_checkpoints/p30-checkpoint.ipynb
+argoevents/webhook/tfm0/argo-events-demo/*

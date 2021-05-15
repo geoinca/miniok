@@ -16,13 +16,13 @@ spec:
     - name: filename
       value: outfilename.jpg
     - name: s3prefix
-      value: ""
+      value: "id1/"
     - name: process
       value: "doNotning" 
     - name: inputfolfer
-      value: input
+      value: infolder
     - name: outputfolfer
-      value: output                         
+      value: outfolder                        
   templates:
   - name: tfm
     inputs:

@@ -3,6 +3,7 @@ kind: Workflow
 metadata:
   generateName: tfm-
 spec:
+  
   entrypoint: webhooktfm
   onExit: exit-handler
   arguments:
@@ -12,7 +13,7 @@ spec:
     - name: s3prefix
       value: ""
     - name: inputfolfer
-      value: results
+      value: input
     - name: outputfolfer
       value: output
   volumes:
