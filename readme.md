@@ -29,11 +29,18 @@ curl -LO https://storage.googleapis.com/minikube/releases/v1.16.0/minikube-darwi
 minikube start --mount-string /Volumes/hd/TFM/laravel:/mnt/data
 ```console
 /mnt/vda1/data
-minikube start --vm-driver kvm2  --v=10 --alsologtostderr --cpus 4 --memory 10240 --mount --mount-string="/home/demo/k8/laravel:/mnt/data" 
-minikube version: v1.18.1
-minikube start --vm-driver kvm2 --mount --mount-string="/home/demo/k8/laravel:/mnt/data" --cpus 4 --memory 10240 --v=10
+/home/demo/k8/laravel-kubernetes-helm/docker/laravel
+/home/demo/k8/laravel
+
+minikube start --vm-driver docker  --v=10 --alsologtostderr --cpus 4 --memory 10240 --mount --mount-string="/home/demo/k8/laravel:/mnt/data" 
+
+minikube version: v1.18.1 Linux
+minikube start --vm-driver docker --mount --mount-string="/home/demo/k8/laravel-kubernetes-helm/docker/laravel:/mnt/data" --cpus 4 --memory 10240 --v=10
  
-minikube start --vm-driver kvm2 --vm-driver kvm2  --v=10 --alsologtostderr --cpus 4 --memory 10240 --mount-string /home/demo/k8/laravel:/mnt/data
+/home/demo/k8/DockerPHPTutorial/laravel  
+minikube start --vm-driver docker --mount --mount-string="/home/demo/k8/DockerPHPTutorial/laravel:/mnt/data" --cpus 4 --memory 10240 --v=10
+
+minikube start --vm-driver kvm2  --v=10 --alsologtostderr --cpus 4 --memory 10240 --mount-string /home/demo/k8/laravel:/mnt/data
 
 
 minikube start  --vm-driver=hyperkit --container-runtime=docker  --v=10 --alsologtostderr --cpus 4 --memory 8192 --mount-string /home/demo/k8/laravel:/mnt/data
@@ -53,7 +60,7 @@ https://cloudnative.mx/como-empezar-con-kubernetes-usando-minikube/
 
 
 wget https://github.com/kubernetes/minikube/releases/download/v1.16.0/minikube-linux-amd64
-
+minikube start --vm-driver docker --mount --mount-string="/home/demo/k8/DockerPHPTutorial/laravel:/mnt/data" --cpus 4 --memory 10240 --v=10
 
 minikube start
 minikube dashboard
@@ -94,9 +101,10 @@ argo version
 ```
 
 ```console
-kubectl create ns argo 
-
+kubectl create ns argo
 kubectl apply -n argo -f https://raw.githubusercontent.com/argoproj/argo/stable/manifests/install.yaml 
+ 
+
 
 kubectl apply -n argo -f https://raw.githubusercontent.com/argoproj/argo/v2.12.11/manifests/install.yaml
 
@@ -109,7 +117,7 @@ kubectl -n argo port-forward deployment/argo-server 2746:2746 &&
 
 modify >>     - argo >>         - server >>             - argo-server >>                - edit
 
-```console
+```console  ClusterIP X  LoadBalancer
 spec:
   ports:
     - name: web
@@ -130,24 +138,31 @@ spec:
 
 # minio
 ```console
-helm install --namespace=argo argo-artifacts stable/minio --set service.type=LoadBalancer --set fullnameOverride=argo-artifacts
 
-kubectl port-forward service/argo-artifacts -n argo 9000:9000
+
+
+
+
+helm install --namespace=argo-events argoartifacts stable/minio --set service.type=LoadBalancer --set fullnameOverride=argoartifacts
+helm uninstall -n argo-events argoartifacts
+
 ```
 cd minioartifacts
 ### Patch 
 ```console
-
+cd minioartifacts
 kubectl -n argo patch configmap/workflow-controller-configmap --patch "$(cat ./minio-modified-minio.yaml)"
 
 ```
+
+
 
 
 # argo-events
 ```console
 kubectl create ns argo-events &&
 
-kubectl apply -f  https://raw.githubusercontent.com/argoproj/argo-events/stable/manifests/install.yaml
+kubectl apply -f                 https://raw.githubusercontent.com/argoproj/argo-events/stable/manifests/install.yaml
 
 kubectl apply -n argo-events -f https://raw.githubusercontent.com/argoproj/argo-events/stable/examples/eventbus/native.yaml
 
@@ -162,14 +177,61 @@ secret
 kubectl create secret generic argo-artifacts --from-literal=accesskey="AKIAIOSFODNN7EXAMPLE" --from-literal=secretkey="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"  -n argo-events
 ```
 
+FinalTFM
 
-# Install with a validating admission controller
-```console
-kubectl apply -f https://raw.githubusercontent.com/argoproj/argo-events/stable/manifests/install-validating-webhook.yaml
-
-```
+minikube start --vm-driver docker --mount --mount-string="/home/demo/k8/DockerPHPTutorial/laravel:/mnt/data" --cpus 4 --memory 10240 --v=10 
+kubectl create ns argo 
+kubectl apply -n argo -f https://raw.githubusercontent.com/argoproj/argo/v2.12.11/manifests/install.yaml
 
 
+
+kubectl apply -n argo -f https://raw.githubusercontent.com/argoproj/argo/v2.12.11/manifests/install.yaml
+
+kubectl create rolebinding default-admin --clusterrole=admin --serviceaccount=argo:default --namespace=argo
+
+kubectl -n argo port-forward deployment/argo-server 2746:2746 &&
+
+
+
+helm install --namespace=argo argo-artifacts stable/minio --set service.type=LoadBalancer --set fullnameOverride=argo-artifacts
+
+kubectl port-forward service/argo-artifacts -n argo 9000:9000
+
+cd minioartifacts
+kubectl -n argo patch configmap/workflow-controller-configmap --patch "$(cat ./minio-modified-minio.yaml)"
+
+
+python3 dockerimg/createbucket.py
+
+
+kubectl create ns argo-events
+kubectl create namespace argo-events
+kubectl create secret generic argo-artifacts --from-literal=accesskey="AKIAIOSFODNN7EXAMPLE" --from-literal=secretkey="wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"  -n argo-events
+
+kubectl apply  --filename https://raw.githubusercontent.com/argoproj/argo-events/stable/manifests/install.yaml
+
+kubectl apply --namespace argo-events     --filename https://raw.githubusercontent.com/argoproj/argo-events/stable/examples/eventbus/native.yaml
+kubectl apply -n argo-events                      -f https://raw.githubusercontent.com/argoproj/argo-events/stable/examples/eventbus/native.yaml
+
+kubectl -n argo-events port-forward service/webhook-eventsource-svc 12000:12000
+
+kubectl create clusterrolebinding geoinca-cluster-admin-binding --clusterrole=cluster-admin --user=geoinca@gmail.com
+
+demo@demo:~/k8/miniok/argo (main) $ kubectl apply -n argo -f tfm-secret.yaml
+secret/tfm-secret created
+demo@demo:~/k8/miniok/argo (main) $ kubectl apply -n argo-events -f tfm-secret.yaml
+secret/tfm-secret created
+ 
+
+demo@demo:~/k8/miniok/argoevents/webhook/tfm0/argo-events-demo (master) $ kubectl apply -n argo-events -f ../../s1_00_event-sources.yaml
+eventsource.argoproj.io/webhook configured
+demo@demo:~/k8/miniok/argoevents/webhook/tfm0/argo-events-demo (master) $ kubectl apply -n argo-events -f ../../s1_04_sensor.yaml
+sensor.argoproj.io/webhook4tfm created
+
+demo@demo:~/k8/miniok/argoevents/minio (main) $ kubectl apply -n argo-events -f 002-event-source.yaml
+eventsource.argoproj.io/miniotfm created
+demo@demo:~/k8/miniok/argoevents/minio (main) $ kubectl apply -n argo-events -f 002-sensor02.yaml
+sensor.argoproj.io/webhooktfm created
 
 
 # Argo Samples
@@ -209,19 +271,26 @@ kubectl -n argo-events get eventsource
 
 curl -X POST -H "Content-Type: application/json"   -d '{"message":"this is my first webhook"}'  http://localhost:15000/devops-toolkit
 
-curl -X POST -H "Content-Type: application/json"   -d '{"message":"this is my first webhook"}'  http://localhost:12000/example4
+curl -X POST -H "Content-Type: application/json"   -d '{"s3prefix":"id1/","filename":"youcantbelive1.jpg"}'  http://localhost:12000/example4
 
 curl -d '{"channel":"tfm","message":"test message"}' -H "Content-Type: application/json" -X POST http://localhost:12000/example2
 
-curl -X POST -H 'Authorization: Bearer xoxb-xxx-xxx-xxx' \
+kubectl -n argo-events apply -f 
+ cd ~/k8/miniok/argoevents/minio
+kubectl -n argo-events apply -f 002-event-source.yaml
+kubectl -n argo-events apply -f 002-sensor02.yaml
+cd ~/k8/miniok/argoevents/webhook
+kubectl -n argo-events apply -f s1_00_event-sources.yaml
+kubectl -n argo-events apply -f s1_04_sensor.yaml
+curl -X POST -H 'Authorization: Bearer xoxb-1809541606629-2019813145203-Q0DEa7Iq6I93nndQmmH4b307' \
 -H 'Content-type: application/json' \
 --data '{"channel":"tfm","text":"I hope the tour went well, Mr. Wonka.","attachments": [{"text":"Who wins the lifetime supply of chocolate?","fallback":"You could be telling the computer exactly what it can do with a lifetime supply of chocolate.","color":"#3AA3E3","attachment_type":"default","callback_id":"select_simple_1234","actions":[{"name":"winners_list","text":"Who should win?","type":"select","data_source":"users"}]}]}' \
 https://slack.com/api/chat.postMessage
 
-curl -X POST -H 'Authorization: Bearer xoxb-xox-xox-xox' \
--H 'Content-type: application/json' \
---data '{"channel":"tfm","text":"test linix"}' \
-https://slack.com/api/chat.postMessage
+
+curl -X POST -H 'Authorization: Bearer xoxb-1809541606629-2019813145203-Q0DEa7Iq6I93nndQmmH4b307' -H 'Content-type: application/json' --data '{"channel":"tfm","text":"test linix"}' https://slack.com/api/chat.postMessage
+
+
 
 ```
 ## Deploy Laravel 
@@ -257,7 +326,8 @@ service/web-service created
 demo@u18a-2:~/k8/DockerPHPTutorial/kuberdev$ kubectl apply -n argo -f webserver.yaml
 deployment.apps/webserver created
 demo@u18a-2:~/k8/DockerPHPTutorial/kuberdev$
-
+demo@demo:~/k8/miniok/argo (main) $ kubectl apply -n argo -f tfm-secret.yaml
+demo@demo:~/k8/miniok/argo (main) $ kubectl apply -n argo-events -f tfm-secret.yaml
 ```
 
 
@@ -282,6 +352,8 @@ kubectl apply -n argo-events -f https://raw.githubusercontent.com/argoproj/argo-
 test argo
 ```console
 argo submit --watch -n argo  https://raw.githubusercontent.com/geoinca/miniok/main/argo/tfm-world10.yaml
+argo submit --watch -n argo  tfm-world10.yaml
+argo submit --watch -n argo-events tfm-world11.yaml
 ```
 ## Webhook
 
@@ -310,7 +382,7 @@ https://raw.githubusercontent.com/geoinca/miniok/main/argoevents/webhook/a001b-e
 ```
 
 ### TFM sample
-```console
+```consolekubectl apply -n argo -f  dbserver.yaml
 
 demo@u18a-2:~/k8/argo-events-demo$ kubectl apply -n argo-events -f https://raw.githubusercontent.com/geoinca/argo-events-demo/master/s1_00_event-sources.yaml
 eventsource.argoproj.io/webhook created
@@ -419,15 +491,18 @@ composer update
 docker run --rm -v $(pwd):/app composer install
 
 php artisan route:list
+php artisan migrate:fresh
+
+ python3 createbucket.py
 
 ## build Docker Image
 
-docker run --rm  geoincaks/pythonimg:0.2.1 /bin/bash 
+docker run --rm  geoincaks/pythonimg:0.2.2 /bin/bash 
 docker build -t  geoincaks/ubuntutest:0.1.3 .
 IMAGE 00
 ```console
-docker build -t geoincaks/pythonimg:0.2.1 -f Dockerfile00CountObj .
-docker push geoincaks/pythonimg:0.2.1
+docker build -t geoincaks/pythonimg:0.2.2 -f Dockerfile00CountObj .
+docker push geoincaks/pythonimg:0.2.2
 ```
 
 IMAGE 01
